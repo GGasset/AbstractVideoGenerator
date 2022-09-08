@@ -36,10 +36,10 @@
             this.trainToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.trainFromImagesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.comboBox = new System.Windows.Forms.ComboBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.Display = new System.Windows.Forms.PictureBox();
             this.StatusLabel = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Display)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -106,14 +106,14 @@
             this.comboBox.Size = new System.Drawing.Size(283, 21);
             this.comboBox.TabIndex = 1;
             // 
-            // pictureBox1
+            // Display
             // 
-            this.pictureBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-            this.pictureBox1.Location = new System.Drawing.Point(0, 54);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(920, 540);
-            this.pictureBox1.TabIndex = 2;
-            this.pictureBox1.TabStop = false;
+            this.Display.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
+            this.Display.Location = new System.Drawing.Point(0, 54);
+            this.Display.Name = "Display";
+            this.Display.Size = new System.Drawing.Size(920, 540);
+            this.Display.TabIndex = 2;
+            this.Display.TabStop = false;
             // 
             // StatusLabel
             // 
@@ -131,7 +131,7 @@
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
             this.ClientSize = new System.Drawing.Size(920, 595);
             this.Controls.Add(this.StatusLabel);
-            this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.Display);
             this.Controls.Add(this.comboBox);
             this.Controls.Add(this.menuStrip1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -140,9 +140,10 @@
             this.Name = "MainForm";
             this.ShowIcon = false;
             this.Text = "Video Generator";
+            this.Load += new System.EventHandler(this.MainForm_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Display)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -158,7 +159,7 @@
         private System.Windows.Forms.ToolStripMenuItem trainToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem trainFromImagesToolStripMenuItem;
         private System.Windows.Forms.ComboBox comboBox;
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox Display;
         private System.Windows.Forms.Label StatusLabel;
     }
 }
