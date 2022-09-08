@@ -1,1 +1,1 @@
-# AbstractVideoGenerator
+# PsychedelicVideoGenerator
