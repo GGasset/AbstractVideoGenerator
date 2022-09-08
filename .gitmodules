@@ -1,0 +1,3 @@
+[submodule "NeatNetwork"]
+	path = NeatNetwork
+	url = https://github.com/GGasset/NeatNetwork
