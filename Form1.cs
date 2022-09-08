@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using MathNet.Numerics.Distributions;
 
 namespace AbstractVideoGenerator
 {
@@ -47,6 +48,14 @@ namespace AbstractVideoGenerator
                 directories.RemoveAt(emptyFoldersIndexes[i]);
                 imagesPaths.RemoveAt(emptyFoldersIndexes[i]);
             }
+
+            List<string> directoryNames = new List<string>();
+            foreach (var directoryPath in directories)
+            {
+                directoryNames.Add(FolderToName(directoryPath));
+            }
+            comboBox.Items.Clear();
+            comboBox.Items.AddRange(directoryNames.ToArray());
         }
 
         public string[] FilterFiles(string[] filePaths)
@@ -56,7 +65,7 @@ namespace AbstractVideoGenerator
             {
                 bool containsSupportedExtension = false;
                 foreach (var supportedExtension in supportedExtensions)
-                    containsSupportedExtension = filePath.Contains(supportedExtension) || containsSupportedExtension;
+                    containsSupportedExtension = filePath.ToLowerInvariant().Contains(supportedExtension.ToLowerInvariant()) || containsSupportedExtension;
 
                 if (containsSupportedExtension)
                     output.Add(filePath);
@@ -69,8 +78,17 @@ namespace AbstractVideoGenerator
             if (folderPath.EndsWith(@"\"))
                 folderPath = folderPath.Remove(folderPath.LastIndexOf(@"\"));
 
-            folderPath = folderPath.Remove(0, folderPath.LastIndexOf(@"\"));
+            folderPath = folderPath.Remove(0, folderPath.LastIndexOf(@"\") + 1);
             return folderPath;
+        }
+
+        public double[] GetGaussianNoise(double mean, double standarDeviation, int arrayLength)
+        {
+            double[] output = new double[arrayLength];
+            Normal normalDistribution = new Normal(mean, standarDeviation);
+            for (int i = 0; i < arrayLength; i++)
+                output[i] = normalDistribution.Sample();
+            return output;
         }
     }
 }
