@@ -34,6 +34,8 @@ namespace AbstractVideoGenerator
         RNN generative;
         NN autoEncoder, discriminative;
 
+        List<string[]> imagePaths;
+        List<string> folderNames;
         List<string> shuffledImages;
 
         #region Form things
@@ -69,7 +71,7 @@ namespace AbstractVideoGenerator
                 discriminatoryLayers[x] = NeuronHolder.NeuronTypes.LSTM;*/
         }
 
-        private void trainFromImagesToolStripMenuItem_Click(object sender, EventArgs e)
+        private void SelectDataSourceToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog()
             {
@@ -105,13 +107,14 @@ namespace AbstractVideoGenerator
                 imagesPaths.RemoveAt(emptyFoldersIndexes[i]);
             }
 
-            List<string> directoryNames = new List<string>();
+            folderNames = new List<string>();
             foreach (var directoryPath in directories)
             {
-                directoryNames.Add(FolderToName(directoryPath));
+                string folderName = FolderToName(directoryPath);
+                folderNames.Add(folderName);
             }
             comboBox.Items.Clear();
-            comboBox.Items.AddRange(directoryNames.ToArray());
+            comboBox.Items.AddRange(folderNames.ToArray());
             comboBox.Items.Add("");
         }
 
