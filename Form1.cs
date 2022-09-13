@@ -48,7 +48,7 @@ namespace AbstractVideoGenerator
             int resolution = networkResolution = networkSideSize * networkSideSize;
             int resolutionDataSize = networkResolitionDataSize = resolution * 3;
 
-            autoEncoderShape = new int[] { resolutionDataSize, 500, 150, 50, 150, 500, resolutionDataSize };
+            autoEncoderShape = new int[] { resolutionDataSize, 500, 150, 75, 150, 500, resolutionDataSize };
 
             /*autoEncoderLayers = new NeuronHolder.NeuronTypes[autoEncoderShape.Length - 1];
             for (int x = 0; x < autoEncoderLayers.Length; x++)
