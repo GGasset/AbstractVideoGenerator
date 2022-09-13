@@ -21,7 +21,7 @@ namespace AbstractVideoGenerator
 
         int networkSideSize;
         int networkResolution;
-        int networkResulitionDataSize;
+        int networkResolitionDataSize;
 
         int[] autoEncoderShape,
             generativeShape,
@@ -46,7 +46,7 @@ namespace AbstractVideoGenerator
         {
             networkSideSize = 20;
             int resolution = networkResolution = networkSideSize * networkSideSize;
-            int resolutionDataSize = networkResulitionDataSize = resolution * 3;
+            int resolutionDataSize = networkResolitionDataSize = resolution * 3;
 
             autoEncoderShape = new int[] { resolutionDataSize, 500, 150, 50, 150, 500, resolutionDataSize };
 
@@ -118,6 +118,12 @@ namespace AbstractVideoGenerator
 
             shuffledImages = ShufflePaths(unhirearchicalImagePaths);
 
+            Bitmap bitmap = new Bitmap(shuffledImages[0]);
+            Bitmap scaleddown = new Bitmap(bitmap, new Size(networkSideSize, networkSideSize));
+            double[] imageData = BitmapToDoubleArray(scaleddown);
+            Bitmap converted = DoubleArrayToBitmap(imageData, networkSideSize, networkSideSize);
+            Bitmap scaledup = new Bitmap(converted, Display.Size);
+            Display.Image = scaledup;
 
             //overfit autoencoder for 1 image
             /*Bitmap bitmap = new Bitmap(shuffledImages[0]);
