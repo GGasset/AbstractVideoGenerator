@@ -92,6 +92,8 @@ namespace AbstractVideoGenerator
                 unhirearchicalImagePaths.AddRange(currentPaths);
             }
 
+            shuffledImages = ShufflePaths(unhirearchicalImagePaths);
+
             List<int> emptyFoldersIndexes = new List<int>();
             for (int i = 0; i < directories.Count; i++)
                 if (imagesPaths[i].Length == 0)
@@ -111,55 +113,6 @@ namespace AbstractVideoGenerator
             comboBox.Items.Clear();
             comboBox.Items.AddRange(directoryNames.ToArray());
             comboBox.Items.Add("");
-
-            generative = new RNN(generativeShape, generativeLayers, NeatNetwork.Libraries.Activation.ActivationFunctions.Sigmoid);
-            discriminative = new NN(discriminatoryShape, NeatNetwork.Libraries.Activation.ActivationFunctions.Sigmoid);
-            autoEncoder = new NN(autoEncoderShape, NeatNetwork.Libraries.Activation.ActivationFunctions.Sigmoid);
-
-            shuffledImages = ShufflePaths(unhirearchicalImagePaths);
-
-            Bitmap bitmap = new Bitmap(shuffledImages[0]);
-            Bitmap scaleddown = new Bitmap(bitmap, new Size(networkSideSize, networkSideSize));
-            double[] imageData = BitmapToDoubleArray(scaleddown);
-            Bitmap converted = DoubleArrayToBitmap(imageData, networkSideSize, networkSideSize);
-            Bitmap scaledup = new Bitmap(converted, Display.Size);
-            Display.Image = scaledup;
-
-            //overfit autoencoder for 1 image
-            /*Bitmap bitmap = new Bitmap(shuffledImages[0]);
-            Bitmap scaled = new Bitmap(bitmap, new Size(networkSideSize, networkSideSize));
-            double[] imageData = BitmapToDoubleArray(scaled);
-            double lastCost = 500;
-            for (int i = 0; i < 1500; i++)
-            {
-                autoEncoder.SubtractGrads(autoEncoder.GetSupervisedGradients(imageData, imageData, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, out lastCost), .5);
-            }
-
-            MessageBox.Show($"finished overfitting with {lastCost} of cost at last");
-            var output = autoEncoder.Execute(imageData);
-            Bitmap outputBitmap = DoubleArrayToBitmap(output, networkSideSize, networkSideSize);
-            Bitmap displayed = new Bitmap(outputBitmap, Display.Size);
-            Display.Image = displayed;*/
-
-            // Train auto encoder
-            /*for (int i = 0; i < shuffledImages.Count; i++)
-            {
-                try
-                {
-                    Bitmap currentImage = new Bitmap(shuffledImages[i]);
-                    Bitmap sizedImage = new Bitmap(currentImage, new Size(networkSideSize, networkSideSize));
-                    currentImage.Dispose();
-                    double[] bitmapData = BitmapToDoubleArray(sizedImage);
-                    autoEncoder.SubtractGrads(autoEncoder.GetSupervisedGradients(bitmapData, bitmapData, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, out _), 0.5);
-                    sizedImage.Dispose();
-                }
-                catch (Exception)
-                {
-                    File.Delete(shuffledImages[i]);
-                    shuffledImages.RemoveAt(i);
-                    i--;
-                }
-            }*/
         }
 
         private void ShowAutoencoderImageBttn_Click(object sender, EventArgs e)
@@ -172,7 +125,8 @@ namespace AbstractVideoGenerator
 
             if (autoEncoder == null)
             {
-                MessageBox.Show("First initialize networks");
+                MessageBox.Show("First initialize autoencoder network");
+                return;
             }
 
             Bitmap image = new Bitmap( shuffledImages[ new Random(DateTime.Now.Millisecond + rI++).Next(shuffledImages.Count) ] );
@@ -237,7 +191,7 @@ namespace AbstractVideoGenerator
 
         #region network things
 
-        public static double[] BitmapToDoubleArray(Bitmap bitmap)
+        public static double[] BitmapToDoubleArray(Bitmap bitmap, double dataDividend = 255)
         {
             int imageSize = bitmap.Height * bitmap.Width;
             int bitmapData = imageSize * 3;
@@ -250,18 +204,18 @@ namespace AbstractVideoGenerator
                 {
                     Color cPixel = bitmap.GetPixel(x, y);
 
-                    output[i] = cPixel.R;
+                    output[i] = cPixel.R / dataDividend;
                     i++;
-                    output[i] = cPixel.G;
+                    output[i] = cPixel.G / dataDividend;
                     i++;
-                    output[i] = cPixel.B;
+                    output[i] = cPixel.B / dataDividend;
                     i++;
                 }
             }
             return output;
         }
 
-        public static Bitmap DoubleArrayToBitmap(double[] imageData, int bitmapWidth, int bitmapHeight)
+        public static Bitmap DoubleArrayToBitmap(double[] imageData, int bitmapWidth, int bitmapHeight, double dataMultiplier = 255)
         {
             int counter = 0;
             Bitmap output = new Bitmap(bitmapWidth, bitmapHeight);
@@ -271,11 +225,11 @@ namespace AbstractVideoGenerator
                 {
                     byte R, G, B;
 
-                    R = Convert.ToByte(imageData[counter]);
+                    R = Convert.ToByte(imageData[counter] * dataMultiplier);
                     counter++;
-                    G = Convert.ToByte(imageData[counter]);
+                    G = Convert.ToByte(imageData[counter] * dataMultiplier);
                     counter++;
-                    B = Convert.ToByte(imageData[counter]);
+                    B = Convert.ToByte(imageData[counter] * dataMultiplier);
                     counter++;
 
                     Color color = Color.FromArgb(255, R, G, B);
