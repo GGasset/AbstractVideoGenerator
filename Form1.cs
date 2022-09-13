@@ -276,6 +276,7 @@ namespace AbstractVideoGenerator
                     G = Convert.ToByte(imageData[counter]);
                     counter++;
                     B = Convert.ToByte(imageData[counter]);
+                    counter++;
 
                     Color color = Color.FromArgb(255, R, G, B);
 
