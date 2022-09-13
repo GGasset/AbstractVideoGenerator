@@ -37,7 +37,7 @@
             this.trainFromImagesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.comboBox = new System.Windows.Forms.ComboBox();
             this.Display = new System.Windows.Forms.PictureBox();
-            this.StatusLabel = new System.Windows.Forms.Label();
+            this.ShowAutoencoderImageBttn = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Display)).BeginInit();
             this.SuspendLayout();
@@ -50,7 +50,7 @@
             this.trainToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(920, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(515, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "Menu";
             // 
@@ -99,11 +99,13 @@
             // 
             // comboBox
             // 
+            this.comboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox.FormattingEnabled = true;
-            this.comboBox.Location = new System.Drawing.Point(0, 27);
+            this.comboBox.Location = new System.Drawing.Point(5, 27);
             this.comboBox.Name = "comboBox";
-            this.comboBox.Size = new System.Drawing.Size(283, 21);
+            this.comboBox.Size = new System.Drawing.Size(505, 21);
             this.comboBox.TabIndex = 1;
             // 
             // Display
@@ -111,26 +113,27 @@
             this.Display.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.Display.Location = new System.Drawing.Point(0, 54);
             this.Display.Name = "Display";
-            this.Display.Size = new System.Drawing.Size(920, 540);
+            this.Display.Size = new System.Drawing.Size(150, 150);
             this.Display.TabIndex = 2;
             this.Display.TabStop = false;
             // 
-            // StatusLabel
+            // ShowAutoencoderImageBttn
             // 
-            this.StatusLabel.AutoSize = true;
-            this.StatusLabel.Location = new System.Drawing.Point(289, 30);
-            this.StatusLabel.Name = "StatusLabel";
-            this.StatusLabel.Size = new System.Drawing.Size(70, 13);
-            this.StatusLabel.TabIndex = 3;
-            this.StatusLabel.Text = "Doing X label";
+            this.ShowAutoencoderImageBttn.Location = new System.Drawing.Point(156, 54);
+            this.ShowAutoencoderImageBttn.Name = "ShowAutoencoderImageBttn";
+            this.ShowAutoencoderImageBttn.Size = new System.Drawing.Size(143, 23);
+            this.ShowAutoencoderImageBttn.TabIndex = 3;
+            this.ShowAutoencoderImageBttn.Text = "Show autoencoder image";
+            this.ShowAutoencoderImageBttn.UseVisualStyleBackColor = true;
+            this.ShowAutoencoderImageBttn.Click += new System.EventHandler(this.ShowAutoencoderImageBttn_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
-            this.ClientSize = new System.Drawing.Size(920, 595);
-            this.Controls.Add(this.StatusLabel);
+            this.ClientSize = new System.Drawing.Size(515, 209);
+            this.Controls.Add(this.ShowAutoencoderImageBttn);
             this.Controls.Add(this.Display);
             this.Controls.Add(this.comboBox);
             this.Controls.Add(this.menuStrip1);
@@ -160,7 +163,7 @@
         private System.Windows.Forms.ToolStripMenuItem trainFromImagesToolStripMenuItem;
         private System.Windows.Forms.ComboBox comboBox;
         private System.Windows.Forms.PictureBox Display;
-        private System.Windows.Forms.Label StatusLabel;
+        private System.Windows.Forms.Button ShowAutoencoderImageBttn;
     }
 }
 

@@ -18,7 +18,10 @@ namespace AbstractVideoGenerator
     public partial class MainForm : Form
     {
         static string[] supportedExtensions = new string[] { "JPG", "JPEG", "PNG" };
-        Hashtable networks = new Hashtable();
+
+        int networkSideSize;
+        int networkResolution;
+        int networkResulitionDataSize;
 
         int[] autoEncoderShape,
             generativeShape,
@@ -28,6 +31,11 @@ namespace AbstractVideoGenerator
             generativeLayers,
             discriminatoryLayers;
 
+        RNN generative;
+        NN autoEncoder, discriminative;
+
+        List<string> shuffledImages;
+
         #region Form things
 
         public MainForm()
@@ -36,47 +44,52 @@ namespace AbstractVideoGenerator
         }
         private void MainForm_Load(object sender, EventArgs e)
         {
-            int displaySize = Display.Size.Width * Display.Size.Height;
-            int displayInfoSize = displaySize * 3;
+            networkSideSize = 20;
+            int resolution = networkResolution = networkSideSize * networkSideSize;
+            int resolutionDataSize = networkResulitionDataSize = resolution * 3;
 
-            autoEncoderShape = new int[] { displayInfoSize, 1000000, 1000, 10, 1000, 1000000, displayInfoSize };
+            autoEncoderShape = new int[] { resolutionDataSize, 500, 150, 50, 150, 500, resolutionDataSize };
 
-            autoEncoderLayers = new NeuronHolder.NeuronTypes[autoEncoderShape.Length - 1];
-            for (int i = 0; i < autoEncoderLayers.Length; i++)
-                autoEncoderLayers[i] = NeuronHolder.NeuronTypes.LSTM;
+            /*autoEncoderLayers = new NeuronHolder.NeuronTypes[autoEncoderShape.Length - 1];
+            for (int x = 0; x < autoEncoderLayers.Length; x++)
+                autoEncoderLayers[x] = NeuronHolder.NeuronTypes.Neuron;*/
 
 
-            generativeShape = new int[] { displayInfoSize, 1000000, 500000, 20000, 10000000, displayInfoSize };
+            generativeShape = new int[] { resolutionDataSize, 500, 150, 100, 50, 50, 250, 300, 500, resolutionDataSize };
 
-            autoEncoderLayers = new NeuronHolder.NeuronTypes[generativeShape.Length - 1];
+            generativeLayers = new NeuronHolder.NeuronTypes[generativeShape.Length - 1];
             for (int i = 0; i < generativeLayers.Length; i++)
                 generativeLayers[i] = NeuronHolder.NeuronTypes.LSTM;
 
 
-            discriminatoryShape = new int[] { displayInfoSize, 1000000, 50000, 500, 20, 2, 1 };
+            discriminatoryShape = new int[] { resolutionDataSize, 500, 100, 20, 2, 1 };
 
-            discriminatoryLayers = new NeuronHolder.NeuronTypes[autoEncoderShape.Length - 1];
-            for (int i = 0; i < discriminatoryLayers.Length; i++)
-                discriminatoryLayers[i] = NeuronHolder.NeuronTypes.LSTM;
+            /*discriminatoryLayers = new NeuronHolder.NeuronTypes[autoEncoderShape.Length - 1];
+            for (int x = 0; x < discriminatoryLayers.Length; x++)
+                discriminatoryLayers[x] = NeuronHolder.NeuronTypes.LSTM;*/
         }
 
         private void trainFromImagesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            networks.Clear();
-
             FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog()
             {
                 Description = "You must select a folder with folders that contains images"
             };
 
-            folderBrowserDialog.ShowDialog();
+            if (folderBrowserDialog.ShowDialog() != DialogResult.OK)
+                return;
+            
 
             List<string> directories = new List<string>(Directory.GetDirectories(folderBrowserDialog.SelectedPath));
 
             List<string[]> imagesPaths = new List<string[]>();
+            List<string> unhirearchicalImagePaths = new List<string>();
+
             foreach (var imageDirectory in directories)
             {
-                imagesPaths.Add(FilterFiles(Directory.GetFiles(imageDirectory)));
+                string[] currentPaths;
+                imagesPaths.Add(currentPaths = FilterFiles(Directory.GetFiles(imageDirectory)));
+                unhirearchicalImagePaths.AddRange(currentPaths);
             }
 
             List<int> emptyFoldersIndexes = new List<int>();
@@ -97,18 +110,74 @@ namespace AbstractVideoGenerator
             }
             comboBox.Items.Clear();
             comboBox.Items.AddRange(directoryNames.ToArray());
+            comboBox.Items.Add("");
 
-            Random r = new Random();
-            for (int i = 0; i < imagesPaths.Count; i++)
+            generative = new RNN(generativeShape, generativeLayers, NeatNetwork.Libraries.Activation.ActivationFunctions.Sigmoid);
+            discriminative = new NN(discriminatoryShape, NeatNetwork.Libraries.Activation.ActivationFunctions.Sigmoid);
+            autoEncoder = new NN(autoEncoderShape, NeatNetwork.Libraries.Activation.ActivationFunctions.Sigmoid);
+
+            shuffledImages = ShufflePaths(unhirearchicalImagePaths);
+
+
+            //overfit autoencoder for 1 image
+            /*Bitmap bitmap = new Bitmap(shuffledImages[0]);
+            Bitmap scaled = new Bitmap(bitmap, new Size(networkSideSize, networkSideSize));
+            double[] imageData = BitmapToDoubleArray(scaled);
+            double lastCost = 500;
+            for (int i = 0; i < 1500; i++)
             {
-                StatusLabel.Text = $"Training networks for {directories[i]} folder";
-
-                networks.Add($"G{directoryNames[i]}", new RNN(generativeShape, generativeLayers, NeatNetwork.Libraries.Activation.ActivationFunctions.Sigmoid));
-                networks.Add($"D{directoryNames[i]}", new RNN(discriminatoryShape, discriminatoryLayers, NeatNetwork.Libraries.Activation.ActivationFunctions.Sigmoid));
-                networks.Add($"A{directoryNames[i]}", new RNN(autoEncoderShape, autoEncoderLayers, NeatNetwork.Libraries.Activation.ActivationFunctions.Sigmoid));
-
-
+                autoEncoder.SubtractGrads(autoEncoder.GetSupervisedGradients(imageData, imageData, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, out lastCost), .5);
             }
+
+            MessageBox.Show($"finished overfitting with {lastCost} of cost at last");
+            var output = autoEncoder.Execute(imageData);
+            Bitmap outputBitmap = DoubleArrayToBitmap(output, networkSideSize, networkSideSize);
+            Bitmap displayed = new Bitmap(outputBitmap, Display.Size);
+            Display.Image = displayed;*/
+
+            // Train auto encoder
+            /*for (int i = 0; i < shuffledImages.Count; i++)
+            {
+                try
+                {
+                    Bitmap currentImage = new Bitmap(shuffledImages[i]);
+                    Bitmap sizedImage = new Bitmap(currentImage, new Size(networkSideSize, networkSideSize));
+                    currentImage.Dispose();
+                    double[] bitmapData = BitmapToDoubleArray(sizedImage);
+                    autoEncoder.SubtractGrads(autoEncoder.GetSupervisedGradients(bitmapData, bitmapData, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, out _), 0.5);
+                    sizedImage.Dispose();
+                }
+                catch (Exception)
+                {
+                    File.Delete(shuffledImages[i]);
+                    shuffledImages.RemoveAt(i);
+                    i--;
+                }
+            }*/
+        }
+
+        private void ShowAutoencoderImageBttn_Click(object sender, EventArgs e)
+        {
+            if (shuffledImages == null)
+            {
+                MessageBox.Show("First set image paths");
+                return;
+            }
+
+            if (autoEncoder == null)
+            {
+                MessageBox.Show("First initialize networks");
+            }
+
+            Bitmap image = new Bitmap( shuffledImages[ new Random(DateTime.Now.Millisecond + rI++).Next(shuffledImages.Count) ] );
+            image = new Bitmap(image, new Size(networkSideSize, networkSideSize));
+
+            double[] X = BitmapToDoubleArray(image);
+            double[] reconstructedImage = autoEncoder.Execute(X);
+            
+            Bitmap reconstructedBitmap = DoubleArrayToBitmap(reconstructedImage, networkSideSize, networkSideSize);
+            Bitmap augmentedBitmap = new Bitmap(reconstructedBitmap, Display.Size);
+            Display.Image = augmentedBitmap;
         }
 
         #endregion
@@ -139,14 +208,81 @@ namespace AbstractVideoGenerator
             return folderPath;
         }
 
+        static int rI = 0;
+        public static List<string> ShufflePaths(List<string> paths)
+        {
+            //Create a copy
+            List<string> input = paths.ToList();
+            Random r = new Random(DateTime.Now.Millisecond + rI++);
+
+            List<string> output = new List<string>();
+            int pathsCount = paths.Count;
+            for (int i = 0; i < pathsCount; i++)
+            {
+                int selectedI = r.Next(input.Count);
+
+                output.Add(input[selectedI]);
+                input.RemoveAt(selectedI);
+            }
+            return output;
+        }
+
         #endregion
 
         #region network things
 
-        public double[] BitmapToDoubleArray(Bitmap bitmap)
+        public static double[] BitmapToDoubleArray(Bitmap bitmap)
         {
+            int imageSize = bitmap.Height * bitmap.Width;
+            int bitmapData = imageSize * 3;
 
+            double[] output = new double[bitmapData];
+            int i = 0;
+            for (int x = 0; x < bitmap.Width; x++)
+            {
+                for (int y = 0; y < bitmap.Height; y++)
+                {
+                    Color cPixel = bitmap.GetPixel(x, y);
+
+                    output[i] = cPixel.R;
+                    i++;
+                    output[i] = cPixel.G;
+                    i++;
+                    output[i] = cPixel.B;
+                    i++;
+                }
+            }
+            return output;
         }
+
+        public static Bitmap DoubleArrayToBitmap(double[] imageData, int bitmapWidth, int bitmapHeight)
+        {
+            int counter = 0;
+            Bitmap output = new Bitmap(bitmapWidth, bitmapHeight);
+            for (int x = 0; x < bitmapWidth; x++)
+            {
+                for (int y = 0; y < bitmapHeight; y++)
+                {
+                    byte R, G, B;
+
+                    R = Convert.ToByte(imageData[counter]);
+                    counter++;
+                    G = Convert.ToByte(imageData[counter]);
+                    counter++;
+                    B = Convert.ToByte(imageData[counter]);
+
+                    Color color = Color.FromArgb(255, R, G, B);
+
+                    output.SetPixel(x, y, color);
+                }
+            }
+            return output;
+        }
+
+        /*public List<Bitmap> GetBitmapVariations(Bitmap originalBitmap)
+        {
+            //originalBitmap.Clone();
+        }*/
 
         public double[] GetGaussianNoise(double mean, double standarDeviation, int arrayLength)
         {
