@@ -121,7 +121,7 @@ namespace AbstractVideoGenerator
 
         #region functionality
 
-        public void GetImagePaths(bool multipleNNs)
+        public void GetImagePathsFromFolderContainingImageFolders(bool multipleNNs)
         {
             FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog()
             {
