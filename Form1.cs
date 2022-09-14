@@ -73,6 +73,56 @@ namespace AbstractVideoGenerator
 
         private void SelectDataSourceToolStripMenuItem_Click(object sender, EventArgs e)
         {
+        }
+
+        #region Auto encoder
+
+        #region Execution
+
+        private void ShowAutoencoderImageBttn_Click(object sender, EventArgs e)
+        {
+            if (shuffledImages == null)
+            {
+                MessageBox.Show("First set image paths");
+                return;
+            }
+
+            if (autoEncoder == null)
+            {
+                MessageBox.Show("First initialize autoencoder network");
+                return;
+            }
+
+            Bitmap image = new Bitmap(shuffledImages[new Random(DateTime.Now.Millisecond + rI++).Next(shuffledImages.Count)]);
+            image = new Bitmap(image, new Size(networkSideSize, networkSideSize));
+
+            double[] X = BitmapToDoubleArray(image);
+            double[] reconstructedImage = autoEncoder.Execute(X);
+
+            Bitmap reconstructedBitmap = DoubleArrayToBitmap(reconstructedImage, networkSideSize, networkSideSize);
+            Bitmap augmentedBitmap = new Bitmap(reconstructedBitmap, Display.Size);
+            Display.Image = augmentedBitmap;
+        }
+
+        #endregion
+
+        #region Training
+
+        private void TrainAutoencoder1NForAllFoldersBttn_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #endregion
+
+        #region functionality
+
+        public void GetImagePaths(bool multipleNNs)
+        {
             FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog()
             {
                 Description = "You must select a folder with folders that contains images"
@@ -80,7 +130,7 @@ namespace AbstractVideoGenerator
 
             if (folderBrowserDialog.ShowDialog() != DialogResult.OK)
                 return;
-            
+
 
             List<string> directories = new List<string>(Directory.GetDirectories(folderBrowserDialog.SelectedPath));
 
@@ -114,38 +164,12 @@ namespace AbstractVideoGenerator
                 folderNames.Add(folderName);
             }
             comboBox.Items.Clear();
-            comboBox.Items.AddRange(folderNames.ToArray());
-            comboBox.Items.Add("");
-        }
-
-        private void ShowAutoencoderImageBttn_Click(object sender, EventArgs e)
-        {
-            if (shuffledImages == null)
+            if (multipleNNs)
             {
-                MessageBox.Show("First set image paths");
-                return;
+                comboBox.Items.AddRange(folderNames.ToArray());
+                comboBox.Items.Add("");
             }
-
-            if (autoEncoder == null)
-            {
-                MessageBox.Show("First initialize autoencoder network");
-                return;
-            }
-
-            Bitmap image = new Bitmap( shuffledImages[ new Random(DateTime.Now.Millisecond + rI++).Next(shuffledImages.Count) ] );
-            image = new Bitmap(image, new Size(networkSideSize, networkSideSize));
-
-            double[] X = BitmapToDoubleArray(image);
-            double[] reconstructedImage = autoEncoder.Execute(X);
-            
-            Bitmap reconstructedBitmap = DoubleArrayToBitmap(reconstructedImage, networkSideSize, networkSideSize);
-            Bitmap augmentedBitmap = new Bitmap(reconstructedBitmap, Display.Size);
-            Display.Image = augmentedBitmap;
         }
-
-        #endregion
-
-        #region functionality
 
         public string[] FilterFiles(string[] filePaths)
         {
