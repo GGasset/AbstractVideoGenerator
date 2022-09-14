@@ -71,37 +71,42 @@ namespace AbstractVideoGenerator
                 discriminatoryLayers[x] = NeuronHolder.NeuronTypes.LSTM;*/
         }
 
-        private void SelectDataSourceToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-        }
-
         #region Auto encoder
 
         #region Execution
 
         private void ShowAutoencoderImageBttn_Click(object sender, EventArgs e)
         {
-            if (shuffledImages == null)
-            {
-                MessageBox.Show("First set image paths");
-                return;
-            }
-
             if (autoEncoder == null)
             {
                 MessageBox.Show("First initialize autoencoder network");
                 return;
             }
 
-            Bitmap image = new Bitmap(shuffledImages[new Random(DateTime.Now.Millisecond + rI++).Next(shuffledImages.Count)]);
-            image = new Bitmap(image, new Size(networkSideSize, networkSideSize));
+            Bitmap originalImage;
+            if (shuffledImages == null)
+            {
+                string imagePath = GetImagePath();
+                originalImage = new Bitmap(imagePath);
+            }
+            else
+            {
+                originalImage = new Bitmap(shuffledImages[new Random(DateTime.Now.Millisecond + rI++).Next(shuffledImages.Count)]);
+            }
 
-            double[] X = BitmapToDoubleArray(image);
+            Bitmap reducedImage = new Bitmap(originalImage, new Size(networkSideSize, networkSideSize));
+
+            double[] X = BitmapToDoubleArray(reducedImage);
             double[] reconstructedImage = autoEncoder.Execute(X);
 
             Bitmap reconstructedBitmap = DoubleArrayToBitmap(reconstructedImage, networkSideSize, networkSideSize);
             Bitmap augmentedBitmap = new Bitmap(reconstructedBitmap, Display.Size);
             Display.Image = augmentedBitmap;
+
+            originalImage.Dispose();
+            reducedImage.Dispose();
+            reconstructedBitmap.Dispose();
+            augmentedBitmap.Dispose();
         }
 
         #endregion
@@ -110,7 +115,7 @@ namespace AbstractVideoGenerator
 
         private void TrainAutoencoder1NForAllFoldersBttn_Click(object sender, EventArgs e)
         {
-
+            GetImagePathsFromFolderContainingImageFolders(false);
         }
 
         #endregion
@@ -169,6 +174,20 @@ namespace AbstractVideoGenerator
                 comboBox.Items.AddRange(folderNames.ToArray());
                 comboBox.Items.Add("");
             }
+        }
+
+        public string GetImagePath()
+        {
+            string output = string.Empty;
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Filter = "Image files (*.BMP, *.JPG, *.PNG)|*.BMP;*.JPG;*.PNG";
+                openFileDialog.Multiselect = false;
+                openFileDialog.Title = "Select image";
+                openFileDialog.ShowDialog();
+                output = openFileDialog.FileName;
+            }
+            return output;
         }
 
         public string[] FilterFiles(string[] filePaths)
