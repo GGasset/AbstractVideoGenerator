@@ -43,6 +43,8 @@
             this.button5 = new System.Windows.Forms.Button();
             this.TrainAutoEnconderForImageFolderBttn = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.LearningRateRichTxtBox = new System.Windows.Forms.RichTextBox();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Display)).BeginInit();
             this.flowLayoutPanel1.SuspendLayout();
@@ -71,8 +73,9 @@
             // saveToFolderToolStripMenuItem
             // 
             this.saveToFolderToolStripMenuItem.Name = "saveToFolderToolStripMenuItem";
-            this.saveToFolderToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.saveToFolderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveToFolderToolStripMenuItem.Text = "Save to folder";
+            this.saveToFolderToolStripMenuItem.Click += new System.EventHandler(this.saveToFolderToolStripMenuItem_Click);
             // 
             // loadToolStripMenuItem
             // 
@@ -85,8 +88,9 @@
             // loadFromFileToolStripMenuItem
             // 
             this.loadFromFileToolStripMenuItem.Name = "loadFromFileToolStripMenuItem";
-            this.loadFromFileToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.loadFromFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.loadFromFileToolStripMenuItem.Text = "Load from file";
+            this.loadFromFileToolStripMenuItem.Click += new System.EventHandler(this.loadFromFileToolStripMenuItem_Click);
             // 
             // comboBox
             // 
@@ -166,7 +170,7 @@
             this.groupBox1.Controls.Add(this.TrainAutoencoder1NForAllFoldersBttn);
             this.groupBox1.Location = new System.Drawing.Point(3, 3);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(427, 199);
+            this.groupBox1.Size = new System.Drawing.Size(427, 195);
             this.groupBox1.TabIndex = 6;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Autoencoder network";
@@ -202,12 +206,36 @@
             this.button3.Text = "Show autoencoder video from image";
             this.button3.UseVisualStyleBackColor = true;
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(12, 207);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(72, 13);
+            this.label1.TabIndex = 7;
+            this.label1.Text = "Learning rate:";
+            // 
+            // LearningRateRichTxtBox
+            // 
+            this.LearningRateRichTxtBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.LearningRateRichTxtBox.DetectUrls = false;
+            this.LearningRateRichTxtBox.Location = new System.Drawing.Point(15, 223);
+            this.LearningRateRichTxtBox.Multiline = false;
+            this.LearningRateRichTxtBox.Name = "LearningRateRichTxtBox";
+            this.LearningRateRichTxtBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
+            this.LearningRateRichTxtBox.Size = new System.Drawing.Size(135, 21);
+            this.LearningRateRichTxtBox.TabIndex = 8;
+            this.LearningRateRichTxtBox.Text = "0,1";
+            this.LearningRateRichTxtBox.TextChanged += new System.EventHandler(this.LearningRateRichTxtBox_TextChanged);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
             this.ClientSize = new System.Drawing.Size(598, 416);
+            this.Controls.Add(this.LearningRateRichTxtBox);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.flowLayoutPanel1);
             this.Controls.Add(this.Display);
             this.Controls.Add(this.comboBox);
@@ -244,6 +272,8 @@
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button TrainAutoEnconderForImageFolderBttn;
         private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.RichTextBox LearningRateRichTxtBox;
     }
 }
 
