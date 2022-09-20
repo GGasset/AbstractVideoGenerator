@@ -71,6 +71,8 @@ namespace AbstractVideoGenerator
                 discriminatoryLayers[x] = NeuronHolder.NeuronTypes.LSTM;*/
         }
 
+        #region Save Load (IO)
+
         private void saveToFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (autoEncoder == null && discriminative == null)
@@ -99,20 +101,20 @@ namespace AbstractVideoGenerator
             if (autoEncoder != null && discriminative != null)
             {
                 str += "autoencoder Gan";
-                strTasks.Add(NNToStringAsync(autoEncoder));
-                strTasks.Add(NNToStringAsync(discriminative));
-                strTasks.Add(NNToStringAsync(generative));
+                strTasks.Add(Task.Run(() => autoEncoder.ToString()));
+                strTasks.Add(Task.Run(() => discriminative.ToString()));
+                strTasks.Add(Task.Run(() => generative.ToString()));
             }
             else if (autoEncoder != null)
             {
                 str += "autoencoder";
-                strTasks.Add(NNToStringAsync(autoEncoder));
+                strTasks.Add(Task.Run(() => autoEncoder.ToString()));
             }
             else
             {
                 str += "Gan";
-                strTasks.Add(NNToStringAsync(discriminative));
-                strTasks.Add(NNToStringAsync(generative));
+                strTasks.Add(Task.Run(() => discriminative.ToString()));
+                strTasks.Add(Task.Run(() => generative.ToString()));
             }
 
             str += "\nJGG\n";
@@ -138,7 +140,6 @@ namespace AbstractVideoGenerator
             File.WriteAllText(path, str);
         }
 
-        private async Task<string> NNToStringAsync(NN n) => n.ToString();
 
         private void loadFromFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -166,18 +167,18 @@ namespace AbstractVideoGenerator
 
             if (header == "autoencoder Gan")
             {
-                NNTasks.Add(ReadNNAsync(networkStrs[0]));
-                NNTasks.Add(ReadNNAsync(networkStrs[1]));
-                NNTasks.Add(ReadNNAsync(networkStrs[2]));
+                NNTasks.Add(Task.Run(() => new NN(networkStrs[0])));
+                NNTasks.Add(Task.Run(() => new NN(networkStrs[1])));
+                NNTasks.Add(Task.Run(() => new NN(networkStrs[2])));
             }
             else if (header == "autoencoder")
             {
-                NNTasks.Add(ReadNNAsync(networkStrs[0]));
+                NNTasks.Add(Task.Run(() => new NN(networkStrs[0])));
             }
             else if (header == "Gan")
             {
-                NNTasks.Add(ReadNNAsync(networkStrs[0]));
-                NNTasks.Add(ReadNNAsync(networkStrs[1]));
+                NNTasks.Add(Task.Run(() => new NN(networkStrs[0])));
+                NNTasks.Add(Task.Run(() => new NN(networkStrs[1])));
             }
             else
             {
@@ -213,7 +214,7 @@ namespace AbstractVideoGenerator
             }
         }
 
-        private async Task<NN> ReadNNAsync(string str) => new NN(str);
+        #endregion Save Load (IO)
 
         #region Auto encoder
 
@@ -250,7 +251,6 @@ namespace AbstractVideoGenerator
             originalImage.Dispose();
             reducedImage.Dispose();
             reconstructedBitmap.Dispose();
-            augmentedBitmap.Dispose();
         }
 
         #endregion Execution
@@ -397,6 +397,20 @@ namespace AbstractVideoGenerator
                     output.Add(filePath);
             }
             return output.ToArray();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+
+            openFileDialog.ShowDialog();
+
+            Bitmap original = new Bitmap(openFileDialog.FileName);
+            Bitmap downScaled = new Bitmap(original, new Size(networkSideSize, networkSideSize));
+            double[] imageData = BitmapToDoubleArray(downScaled);
+            Bitmap reconstructed = DoubleArrayToBitmap(imageData, networkSideSize, networkSideSize);
+            Bitmap upScaled = new Bitmap(reconstructed, Display.Size);
+            Display.Image = upScaled;
         }
 
         public static string FolderToName(string folderPath)

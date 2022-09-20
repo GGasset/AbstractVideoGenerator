@@ -45,6 +45,7 @@
             this.button3 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.LearningRateRichTxtBox = new System.Windows.Forms.RichTextBox();
+            this.button1 = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Display)).BeginInit();
             this.flowLayoutPanel1.SuspendLayout();
@@ -73,7 +74,7 @@
             // saveToFolderToolStripMenuItem
             // 
             this.saveToFolderToolStripMenuItem.Name = "saveToFolderToolStripMenuItem";
-            this.saveToFolderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveToFolderToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
             this.saveToFolderToolStripMenuItem.Text = "Save to folder";
             this.saveToFolderToolStripMenuItem.Click += new System.EventHandler(this.saveToFolderToolStripMenuItem_Click);
             // 
@@ -228,12 +229,23 @@
             this.LearningRateRichTxtBox.Text = "0,1";
             this.LearningRateRichTxtBox.TextChanged += new System.EventHandler(this.LearningRateRichTxtBox_TextChanged);
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(15, 250);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 9;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
             this.ClientSize = new System.Drawing.Size(598, 416);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.LearningRateRichTxtBox);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.flowLayoutPanel1);
@@ -274,6 +286,7 @@
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.RichTextBox LearningRateRichTxtBox;
+        private System.Windows.Forms.Button button1;
     }
 }
 
