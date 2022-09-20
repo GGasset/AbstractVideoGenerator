@@ -266,26 +266,118 @@ namespace AbstractVideoGenerator
 
             GetImagePathsFromFolderContainingImageFolders(false);
 
+        }
+
+        private (NN trainedNetwork, double testCost) TrainAutoEncoderOnImages(List<string> paths, int[] autoEncoderShape, bool showMessageBox)
+        {
             var watch = Stopwatch.StartNew();
 
-            autoEncoder = new NN(autoEncoderShape, NeatNetwork.Libraries.Activation.ActivationFunctions.Sigmoid);
+            NN output = new NN(autoEncoderShape, NeatNetwork.Libraries.Activation.ActivationFunctions.Sigmoid);
+
             double learningRate = Convert.ToDouble(LearningRateRichTxtBox.Text);
 
-            double averageCost = 0;
+            List<double[]> imagesData = new List<double[]>();
             foreach (var imagePath in shuffledImages)
             {
                 Bitmap original = new Bitmap(imagePath);
                 Bitmap reduced = new Bitmap(original, new Size(networkSideSize, networkSideSize));
-                double[] imageData = BitmapToDoubleArray(reduced);
-                autoEncoder.SubtractGrads(autoEncoder.GetSupervisedGradients(imageData, imageData, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, out double currentCost), learningRate);
-                averageCost += currentCost;
+
+                imagesData.AddRange(GetImageVariations(reduced));
+
                 original.Dispose();
                 reduced.Dispose();
             }
-            averageCost /= shuffledImages.Count;
 
-            MessageBox.Show($"Auto encoder training of {shuffledImages.Count} images in {watch.Elapsed.TotalMinutes} minutes with an average cost of {averageCost}");
+            var testCost = autoEncoder.SupervisedTrain(imagesData, imagesData, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate, .1, 100, false);
             watch.Stop();
+
+            if (showMessageBox)
+                MessageBox.Show($"Training of a new autoencoder with {paths.Count} images and {imagesData.Count} images including modificated images in {watch.Elapsed.TotalMinutes} minutes with a test cost of {testCost}");
+
+            return (output, testCost);
+        }
+
+        /// <returns>Includes original image data</returns>
+        private List<double[]> GetImageVariations(Bitmap original)
+        {
+            List<double[]> imagesData = new List<double[]>();
+            imagesData.Add(BitmapToDoubleArray(original));
+            Bitmap variation = new Bitmap(original);
+            variation.RotateFlip(RotateFlipType.Rotate180FlipXY);
+            imagesData.Add(BitmapToDoubleArray(variation));
+            variation.Dispose();
+
+            variation = new Bitmap(original);
+            variation.RotateFlip(RotateFlipType.Rotate90FlipNone);
+            imagesData.Add(BitmapToDoubleArray(variation));
+            variation.Dispose();
+            variation = new Bitmap(original);
+
+            variation.RotateFlip(RotateFlipType.Rotate270FlipXY);
+            imagesData.Add(BitmapToDoubleArray(variation));
+            variation.Dispose();
+            variation = new Bitmap(original);
+
+            variation.RotateFlip(RotateFlipType.Rotate180FlipNone);
+            imagesData.Add(BitmapToDoubleArray(variation));
+            variation.Dispose();
+            variation = new Bitmap(original);
+
+            variation.RotateFlip(RotateFlipType.RotateNoneFlipXY);
+            imagesData.Add(BitmapToDoubleArray(variation));
+            variation.Dispose();
+            variation = new Bitmap(original);
+
+            variation.RotateFlip(RotateFlipType.Rotate270FlipNone);
+            imagesData.Add(BitmapToDoubleArray(variation));
+            variation.Dispose();
+            variation = new Bitmap(original);
+
+            variation.RotateFlip(RotateFlipType.Rotate90FlipXY);
+            imagesData.Add(BitmapToDoubleArray(variation));
+            variation.Dispose();
+            variation = new Bitmap(original);
+
+            variation.RotateFlip(RotateFlipType.RotateNoneFlipX);
+            imagesData.Add(BitmapToDoubleArray(variation));
+            variation.Dispose();
+            variation = new Bitmap(original);
+
+            variation.RotateFlip(RotateFlipType.Rotate180FlipY);
+            imagesData.Add(BitmapToDoubleArray(variation));
+            variation.Dispose();
+            variation = new Bitmap(original);
+
+            variation.RotateFlip(RotateFlipType.Rotate90FlipX);
+            imagesData.Add(BitmapToDoubleArray(variation));
+            variation.Dispose();
+            variation = new Bitmap(original);
+
+            variation.RotateFlip(RotateFlipType.Rotate270FlipY);
+            imagesData.Add(BitmapToDoubleArray(variation));
+            variation.Dispose();
+            variation = new Bitmap(original);
+
+            variation.RotateFlip(RotateFlipType.Rotate180FlipX);
+            imagesData.Add(BitmapToDoubleArray(variation));
+            variation.Dispose();
+            variation = new Bitmap(original);
+
+            variation.RotateFlip(RotateFlipType.RotateNoneFlipY);
+            imagesData.Add(BitmapToDoubleArray(variation));
+            variation.Dispose();
+            variation = new Bitmap(original);
+
+            variation.RotateFlip(RotateFlipType.Rotate270FlipX);
+            imagesData.Add(BitmapToDoubleArray(variation));
+            variation.Dispose();
+            variation = new Bitmap(original);
+
+            variation.RotateFlip(RotateFlipType.Rotate90FlipY);
+            imagesData.Add(BitmapToDoubleArray(variation));
+            variation.Dispose();
+
+            return imagesData;
         }
 
         #endregion Training
