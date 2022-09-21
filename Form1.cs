@@ -266,9 +266,10 @@ namespace AbstractVideoGenerator
 
             GetImagePathsFromFolderContainingImageFolders(false);
 
+
         }
 
-        private (NN trainedNetwork, double testCost) TrainAutoEncoderOnImages(List<string> paths, int[] autoEncoderShape, bool showMessageBox)
+        private NN TrainAutoEncoderOnImages(List<string> paths, int[] autoEncoderShape, bool showMessageBox)
         {
             var watch = Stopwatch.StartNew();
 
@@ -292,9 +293,10 @@ namespace AbstractVideoGenerator
             watch.Stop();
 
             if (showMessageBox)
-                MessageBox.Show($"Training of a new autoencoder with {paths.Count} images and {imagesData.Count} images including modificated images in {watch.Elapsed.TotalMinutes} minutes with a test cost of {testCost}");
+                MessageBox.Show($"Training of a new autoencoder with {paths.Count} images and {imagesData.Count} images including modificated images in {watch.Elapsed.TotalMinutes} minutes with a test cost of {testCost}", 
+                    "Traning info", MessageBoxButtons.OK);
 
-            return (output, testCost);
+            return (output);
         }
 
         /// <returns>Includes original image data</returns>
@@ -410,6 +412,10 @@ namespace AbstractVideoGenerator
 
         #region functionality
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="multipleNNs">If multiple nn is set to true combo box will be filled with options</param>
         public void GetImagePathsFromFolderContainingImageFolders(bool multipleNNs)
         {
             FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog()
