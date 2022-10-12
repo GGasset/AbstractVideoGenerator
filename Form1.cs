@@ -269,7 +269,7 @@ namespace AbstractVideoGenerator
             autoEncoder = TrainAutoEncoderOnImages(shuffledImages, autoEncoderShape, true);
         }
 
-        private NN TrainAutoEncoderOnImages(List<string> paths, int[] autoEncoderShape, bool showMessageBox)
+        private NN TrainAutoEncoderOnImages(List<string> paths, int[] autoEncoderShape, bool showResultMessageBox)
         {
             var watch = Stopwatch.StartNew();
 
