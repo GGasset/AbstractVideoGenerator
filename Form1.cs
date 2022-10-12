@@ -257,6 +257,16 @@ namespace AbstractVideoGenerator
 
         #region Training
 
+        private void TrainAutoEnconderForImageFolderBttn_Click(object sender, EventArgs e)
+        {
+            if (DialogResult.Yes != MessageBox.Show("Do you wish to train an autoencoder network", "", MessageBoxButtons.YesNo))
+                return;
+
+            GetImagePathsFromFolder();
+
+            autoEncoder = TrainAutoEncoderOnImages(shuffledImages, autoEncoderShape, true);
+        }
+
         private void TrainAutoencoder1NForAllFoldersBttn_Click(object sender, EventArgs e)
         {
             if (DialogResult.Yes != MessageBox.Show("Do you wish to start training an autoencoder network", "", MessageBoxButtons.YesNo))
@@ -292,7 +302,7 @@ namespace AbstractVideoGenerator
             var testCost = autoEncoder.SupervisedTrain(imagesData, imagesData, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate, .1, 100, false);
             watch.Stop();
 
-            if (showMessageBox)
+            if (showResultMessageBox)
                 MessageBox.Show($"Training of a new autoencoder with {paths.Count} images and {imagesData.Count} images including modificated images in {watch.Elapsed.TotalMinutes} minutes with a test cost of {testCost}", 
                     "Traning info", MessageBoxButtons.OK);
 

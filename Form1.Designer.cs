@@ -89,7 +89,7 @@
             // loadFromFileToolStripMenuItem
             // 
             this.loadFromFileToolStripMenuItem.Name = "loadFromFileToolStripMenuItem";
-            this.loadFromFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.loadFromFileToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.loadFromFileToolStripMenuItem.Text = "Load from file";
             this.loadFromFileToolStripMenuItem.Click += new System.EventHandler(this.loadFromFileToolStripMenuItem_Click);
             // 
@@ -195,6 +195,7 @@
             this.TrainAutoEnconderForImageFolderBttn.TabIndex = 7;
             this.TrainAutoEnconderForImageFolderBttn.Text = "Train auto encoder for a specific folder";
             this.TrainAutoEnconderForImageFolderBttn.UseVisualStyleBackColor = true;
+            this.TrainAutoEnconderForImageFolderBttn.Click += new System.EventHandler(this.TrainAutoEnconderForImageFolderBttn_Click);
             // 
             // button3
             // 
