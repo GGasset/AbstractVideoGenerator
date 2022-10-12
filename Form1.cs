@@ -412,6 +412,27 @@ namespace AbstractVideoGenerator
 
         #region functionality
 
+        public void GetImagePathsFromFolder()
+        {
+            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog()
+            {
+                Description = "You must select a folder containing images"
+            };
+
+            while (DialogResult.OK != folderBrowserDialog.ShowDialog())
+            {
+
+            }
+
+            List<string> paths = new List<string>();
+            paths.AddRange
+                (
+                    FilterFiles(Directory.GetFiles(folderBrowserDialog.SelectedPath))
+                );
+            shuffledImages = ShufflePaths(paths);
+            comboBox.Items.Clear();
+        }
+
         /// <summary>
         /// 
         /// </summary>
