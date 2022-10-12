@@ -266,7 +266,7 @@ namespace AbstractVideoGenerator
 
             GetImagePathsFromFolderContainingImageFolders(false);
 
-
+            autoEncoder = TrainAutoEncoderOnImages(shuffledImages, autoEncoderShape, true);
         }
 
         private NN TrainAutoEncoderOnImages(List<string> paths, int[] autoEncoderShape, bool showMessageBox)
