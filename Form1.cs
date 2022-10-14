@@ -429,11 +429,9 @@ namespace AbstractVideoGenerator
                 Description = "You must select a folder containing images"
             };
 
-            DialogResult result;
-            while (DialogResult.OK != (result = folderBrowserDialog.ShowDialog()))
+            if (DialogResult.OK != folderBrowserDialog.ShowDialog())
             {
-                if (result == DialogResult.Cancel)
-                    return;
+                return;
             }
 
             List<string> paths = new List<string>();
@@ -456,11 +454,9 @@ namespace AbstractVideoGenerator
                 Description = "You must select a folder with folders that contains images"
             };
 
-            DialogResult result;
-            while ((result = folderBrowserDialog.ShowDialog()) != DialogResult.OK)
+            if (folderBrowserDialog.ShowDialog() != DialogResult.OK)
             {
-                if (result == DialogResult.Cancel)
-                    return;
+                return;
             }
 
 
