@@ -299,7 +299,7 @@ namespace AbstractVideoGenerator
                 reduced.Dispose();
             }
 
-            var testCost = output.SupervisedTrain(imagesData, imagesData, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate, .1, 20, false);
+            var testCost = output.SupervisedTrain(imagesData, imagesData, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate, Convert.ToDouble(LearningRateRichTxtBox.Text), 20, false);
             watch.Stop();
 
             if (showResultMessageBox)
