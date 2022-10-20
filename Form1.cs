@@ -27,6 +27,7 @@ namespace AbstractVideoGenerator
         int[] autoEncoderShape,
             generativeShape,
             discriminatoryShape;
+        int autoencoderCompressedLayer;
 
         NeuronHolder.NeuronTypes[] autoEncoderLayers,
             generativeLayers,
@@ -37,6 +38,9 @@ namespace AbstractVideoGenerator
         List<string[]> imagePaths;
         List<string> folderNames;
         List<string> shuffledImages;
+
+        Timer autencoderVideoTimer;
+        double[] compressedVideoImage;
 
         #region Form things
 
@@ -52,6 +56,14 @@ namespace AbstractVideoGenerator
 
             autoEncoderShape = new int[] { resolutionDataSize, 500, 150, 75, 150, 500, resolutionDataSize };
 
+            autoencoderCompressedLayer = -1;
+            int minLayerLength = int.MaxValue;
+            for (int i = 1; i < autoEncoderShape.Length; i++)
+            {
+                if (autoEncoderShape[i] < minLayerLength)
+                    autoencoderCompressedLayer = i - 1;
+            }
+            
             /*autoEncoderLayers = new NeuronHolder.NeuronTypes[autoEncoderShape.Length - 1];
             for (int x = 0; x < autoEncoderLayers.Length; x++)
                 autoEncoderLayers[x] = NeuronHolder.NeuronTypes.Neuron;*/
@@ -222,6 +234,8 @@ namespace AbstractVideoGenerator
 
         private void ShowAutoencoderImageBttn_Click(object sender, EventArgs e)
         {
+            autencoderVideoTimer = null;
+
             if (autoEncoder == null)
             {
                 MessageBox.Show("First initialize autoencoder network");
@@ -232,6 +246,9 @@ namespace AbstractVideoGenerator
             if (shuffledImages == null)
             {
                 string imagePath = GetImagePath();
+                if (imagePath == null)
+                    return;
+
                 originalImage = new Bitmap(imagePath);
             }
             else
@@ -253,6 +270,55 @@ namespace AbstractVideoGenerator
             reconstructedBitmap.Dispose();
         }
 
+        private void AutoencoderVideoSelectedImageBttn_Click(object sender, EventArgs e)
+        {
+            if (autoEncoder == null)
+            {
+                MessageBox.Show("First you need to train or load an autoencoder network", "ERROR");
+                return;
+            }
+
+            Timer timer = new Timer()
+            {
+                Interval = 30
+            };
+
+            string imagePath = GetImagePath();
+            if (imagePath == null)
+                return;
+
+            Bitmap bmp = new Bitmap(imagePath);
+            Bitmap downscaledBmp = new Bitmap(bmp, networkSideSize, networkSideSize);
+            Display.Image = new Bitmap(bmp, Display.Size);
+            
+            double[] X = BitmapToDoubleArray(downscaledBmp);
+            compressedVideoImage = autoEncoder.ExecuteUpToLayer(X, autoencoderCompressedLayer);
+
+            bmp.Dispose();
+            downscaledBmp.Dispose();
+
+            timer.Tick += ShowAlteredImage;
+            timer.Start();
+        }
+
+        private void ShowAlteredImage(object sender, EventArgs e)
+        {
+            var nOutput = autoEncoder.ExecuteFromLayer(autoencoderCompressedLayer, compressedVideoImage);
+            Bitmap outputNetworkImage = DoubleArrayToBitmap(nOutput, networkSideSize, networkSideSize);
+            Bitmap upscaledBmp = new Bitmap(outputNetworkImage, Display.Size);
+            Display.Image.Dispose();
+            Display.Image = upscaledBmp;
+
+            outputNetworkImage.Dispose();
+
+            Random r = new Random(DateTime.Now.Millisecond);
+            for (int i = 0; i < compressedVideoImage.Length; i++)
+            {
+                double variation = (r.NextDouble() - .5) / 10;
+                compressedVideoImage[i] += variation;
+            }
+        }
+
         #endregion Execution
 
         #region Training
@@ -262,6 +328,7 @@ namespace AbstractVideoGenerator
             if (DialogResult.Yes != MessageBox.Show("Do you wish to train an autoencoder network", "", MessageBoxButtons.YesNo))
                 return;
 
+            autencoderVideoTimer = null;
             GetImagePathsFromFolder();
 
             autoEncoder = TrainAutoEncoderOnImages(shuffledImages, autoEncoderShape, true);
@@ -274,6 +341,7 @@ namespace AbstractVideoGenerator
                 return;
             }
 
+            autencoderVideoTimer = null;
             GetImagePathsFromFolderContainingImageFolders(false);
 
             autoEncoder = TrainAutoEncoderOnImages(shuffledImages, autoEncoderShape, true);
@@ -507,10 +575,29 @@ namespace AbstractVideoGenerator
                 openFileDialog.Filter = "Image files (*.BMP, *.JPG, *.PNG)|*.BMP;*.JPG;*.PNG";
                 openFileDialog.Multiselect = false;
                 openFileDialog.Title = "Select image";
-                openFileDialog.ShowDialog();
-                output = openFileDialog.FileName;
+
+                bool isSupportedFile = false;
+                while (!isSupportedFile)
+                {
+                    if (DialogResult.Cancel == openFileDialog.ShowDialog())
+                    {
+                        return null;
+                    }
+                    output = openFileDialog.FileName;
+                    isSupportedFile = IsSupportedFile(output);
+                    if (!isSupportedFile)
+                        MessageBox.Show("Please select an image");
+                }
             }
             return output;
+        }
+
+        public bool IsSupportedFile(string filePath)
+        {
+            bool containsSupportedExtension = false;
+            foreach (var supportedExtension in supportedExtensions)
+                containsSupportedExtension = filePath.ToLowerInvariant().Contains(supportedExtension.ToLowerInvariant()) || containsSupportedExtension;
+            return containsSupportedExtension;
         }
 
         public string[] FilterFiles(string[] filePaths)
@@ -518,11 +605,7 @@ namespace AbstractVideoGenerator
             var output = new List<string>();
             foreach (var filePath in filePaths)
             {
-                bool containsSupportedExtension = false;
-                foreach (var supportedExtension in supportedExtensions)
-                    containsSupportedExtension = filePath.ToLowerInvariant().Contains(supportedExtension.ToLowerInvariant()) || containsSupportedExtension;
-
-                if (containsSupportedExtension)
+                if (IsSupportedFile(filePath))
                     output.Add(filePath);
             }
             return output.ToArray();
@@ -608,11 +691,11 @@ namespace AbstractVideoGenerator
                 {
                     byte R, G, B;
 
-                    R = Convert.ToByte(imageData[counter] * dataMultiplier);
+                    R = Convert.ToByte(Math.Min(Math.Max(imageData[counter], 0), 1) * dataMultiplier);
                     counter++;
-                    G = Convert.ToByte(imageData[counter] * dataMultiplier);
+                    G = Convert.ToByte(Math.Min(Math.Max(imageData[counter], 0), 1) * dataMultiplier);
                     counter++;
-                    B = Convert.ToByte(imageData[counter] * dataMultiplier);
+                    B = Convert.ToByte(Math.Min(Math.Max(imageData[counter], 0), 1) * dataMultiplier);
                     counter++;
 
                     Color color = Color.FromArgb(255, R, G, B);

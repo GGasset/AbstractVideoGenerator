@@ -42,7 +42,7 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.button5 = new System.Windows.Forms.Button();
             this.TrainAutoEnconderForImageFolderBttn = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
+            this.AutoencoderVideoSelectedImageBttn = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.LearningRateRichTxtBox = new System.Windows.Forms.RichTextBox();
             this.button1 = new System.Windows.Forms.Button();
@@ -165,7 +165,7 @@
             this.groupBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.groupBox1.Controls.Add(this.button5);
             this.groupBox1.Controls.Add(this.TrainAutoEnconderForImageFolderBttn);
-            this.groupBox1.Controls.Add(this.button3);
+            this.groupBox1.Controls.Add(this.AutoencoderVideoSelectedImageBttn);
             this.groupBox1.Controls.Add(this.button2);
             this.groupBox1.Controls.Add(this.ShowAutoencoderImageBttn);
             this.groupBox1.Controls.Add(this.TrainAutoencoder1NForAllFoldersBttn);
@@ -197,16 +197,17 @@
             this.TrainAutoEnconderForImageFolderBttn.UseVisualStyleBackColor = true;
             this.TrainAutoEnconderForImageFolderBttn.Click += new System.EventHandler(this.TrainAutoEnconderForImageFolderBttn_Click);
             // 
-            // button3
+            // AutoencoderVideoSelectedImageBttn
             // 
-            this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.AutoencoderVideoSelectedImageBttn.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.button3.Location = new System.Drawing.Point(6, 135);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(415, 23);
-            this.button3.TabIndex = 6;
-            this.button3.Text = "Show autoencoder video from image";
-            this.button3.UseVisualStyleBackColor = true;
+            this.AutoencoderVideoSelectedImageBttn.Location = new System.Drawing.Point(6, 135);
+            this.AutoencoderVideoSelectedImageBttn.Name = "AutoencoderVideoSelectedImageBttn";
+            this.AutoencoderVideoSelectedImageBttn.Size = new System.Drawing.Size(415, 23);
+            this.AutoencoderVideoSelectedImageBttn.TabIndex = 6;
+            this.AutoencoderVideoSelectedImageBttn.Text = "Show autoencoder video from image";
+            this.AutoencoderVideoSelectedImageBttn.UseVisualStyleBackColor = true;
+            this.AutoencoderVideoSelectedImageBttn.Click += new System.EventHandler(this.AutoencoderVideoSelectedImageBttn_Click);
             // 
             // label1
             // 
@@ -282,7 +283,7 @@
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button AutoencoderVideoSelectedImageBttn;
         private System.Windows.Forms.Button TrainAutoEnconderForImageFolderBttn;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Label label1;
