@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbstractVideoGenerator", "A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeatNetwork", "NeatNetwork\NeatNetwork.csproj", "{D42D2BD1-4893-4DBD-B5BC-97B257357CA8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkTrainer", "NetworkTrainer\NetworkTrainer.csproj", "{FEB4795C-5EB7-4609-B76B-08BF7D33F7AC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Functionality", "Functionality\Functionality.csproj", "{3F361CFE-E6B4-405A-A501-0987CD171426}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{D42D2BD1-4893-4DBD-B5BC-97B257357CA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D42D2BD1-4893-4DBD-B5BC-97B257357CA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D42D2BD1-4893-4DBD-B5BC-97B257357CA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEB4795C-5EB7-4609-B76B-08BF7D33F7AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEB4795C-5EB7-4609-B76B-08BF7D33F7AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEB4795C-5EB7-4609-B76B-08BF7D33F7AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEB4795C-5EB7-4609-B76B-08BF7D33F7AC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F361CFE-E6B4-405A-A501-0987CD171426}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F361CFE-E6B4-405A-A501-0987CD171426}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F361CFE-E6B4-405A-A501-0987CD171426}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F361CFE-E6B4-405A-A501-0987CD171426}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

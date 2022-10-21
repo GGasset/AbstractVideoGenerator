@@ -13,6 +13,7 @@ using System.Windows.Forms;
 using MathNet.Numerics.Distributions;
 using NeatNetwork;
 using NeatNetwork.NetworkFiles;
+using static Functionality.ImageProcessing;
 
 namespace AbstractVideoGenerator
 {
@@ -20,7 +21,7 @@ namespace AbstractVideoGenerator
     {
         static string[] supportedExtensions = new string[] { "JPG", "JPEG", "PNG" };
 
-        int networkSideSize;
+        public static int networkSideSize = 60;
         int networkResolution;
         int networkResolitionDataSize;
 
@@ -39,7 +40,7 @@ namespace AbstractVideoGenerator
         List<string> folderNames;
         List<string> shuffledImages;
 
-        Timer autencoderVideoTimer;
+        Timer autoencoderVideoTimer;
         double[] compressedVideoImage;
 
         #region Form things
@@ -50,11 +51,10 @@ namespace AbstractVideoGenerator
         }
         private void MainForm_Load(object sender, EventArgs e)
         {
-            networkSideSize = 20;
             int resolution = networkResolution = networkSideSize * networkSideSize;
             int resolutionDataSize = networkResolitionDataSize = resolution * 3;
 
-            autoEncoderShape = new int[] { resolutionDataSize, 500, 150, 75, 150, 500, resolutionDataSize };
+            autoEncoderShape = new int[] { resolutionDataSize, 500, 150, 27, 150, 500, resolutionDataSize };
 
             autoencoderCompressedLayer = -1;
             int minLayerLength = int.MaxValue;
@@ -234,7 +234,8 @@ namespace AbstractVideoGenerator
 
         private void ShowAutoencoderImageBttn_Click(object sender, EventArgs e)
         {
-            autencoderVideoTimer = null;
+            if (autoencoderVideoTimer != null)
+                autoencoderVideoTimer.Stop();
 
             if (autoEncoder == null)
             {
@@ -278,9 +279,9 @@ namespace AbstractVideoGenerator
                 return;
             }
 
-            Timer timer = new Timer()
+            autoencoderVideoTimer = new Timer()
             {
-                Interval = 30
+                Interval = 33
             };
 
             string imagePath = GetImagePath();
@@ -297,8 +298,8 @@ namespace AbstractVideoGenerator
             bmp.Dispose();
             downscaledBmp.Dispose();
 
-            timer.Tick += ShowAlteredImage;
-            timer.Start();
+            autoencoderVideoTimer.Tick += ShowAlteredImage;
+            autoencoderVideoTimer.Start();
         }
 
         private void ShowAlteredImage(object sender, EventArgs e)
@@ -314,7 +315,7 @@ namespace AbstractVideoGenerator
             Random r = new Random(DateTime.Now.Millisecond);
             for (int i = 0; i < compressedVideoImage.Length; i++)
             {
-                double variation = (r.NextDouble() - .5) / 10;
+                double variation = (r.NextDouble() - .5) / 5;
                 compressedVideoImage[i] += variation;
             }
         }
@@ -328,7 +329,8 @@ namespace AbstractVideoGenerator
             if (DialogResult.Yes != MessageBox.Show("Do you wish to train an autoencoder network", "", MessageBoxButtons.YesNo))
                 return;
 
-            autencoderVideoTimer = null;
+            if (autoencoderVideoTimer != null)
+                autoencoderVideoTimer.Stop();
             GetImagePathsFromFolder();
 
             autoEncoder = TrainAutoEncoderOnImages(shuffledImages, autoEncoderShape, true);
@@ -341,7 +343,8 @@ namespace AbstractVideoGenerator
                 return;
             }
 
-            autencoderVideoTimer = null;
+            if (autoencoderVideoTimer != null)
+                autoencoderVideoTimer.Stop();
             GetImagePathsFromFolderContainingImageFolders(false);
 
             autoEncoder = TrainAutoEncoderOnImages(shuffledImages, autoEncoderShape, true);
@@ -367,7 +370,7 @@ namespace AbstractVideoGenerator
                 reduced.Dispose();
             }
 
-            var testCost = output.SupervisedTrain(imagesData, imagesData, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate, Convert.ToDouble(LearningRateRichTxtBox.Text), 20, false);
+            var testCost = output.SupervisedTrain(imagesData, imagesData, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate, Convert.ToDouble(LearningRateRichTxtBox.Text), 3, false);
             watch.Stop();
 
             if (showResultMessageBox)
@@ -378,87 +381,6 @@ namespace AbstractVideoGenerator
         }
 
         /// <returns>Includes original image data</returns>
-        private List<double[]> GetImageVariations(Bitmap original)
-        {
-            List<double[]> imagesData = new List<double[]>();
-            imagesData.Add(BitmapToDoubleArray(original));
-            Bitmap variation = new Bitmap(original);
-            variation.RotateFlip(RotateFlipType.Rotate180FlipXY);
-            imagesData.Add(BitmapToDoubleArray(variation));
-            variation.Dispose();
-
-            variation = new Bitmap(original);
-            variation.RotateFlip(RotateFlipType.Rotate90FlipNone);
-            imagesData.Add(BitmapToDoubleArray(variation));
-            variation.Dispose();
-            variation = new Bitmap(original);
-
-            variation.RotateFlip(RotateFlipType.Rotate270FlipXY);
-            imagesData.Add(BitmapToDoubleArray(variation));
-            variation.Dispose();
-            variation = new Bitmap(original);
-
-            variation.RotateFlip(RotateFlipType.Rotate180FlipNone);
-            imagesData.Add(BitmapToDoubleArray(variation));
-            variation.Dispose();
-            variation = new Bitmap(original);
-
-            variation.RotateFlip(RotateFlipType.RotateNoneFlipXY);
-            imagesData.Add(BitmapToDoubleArray(variation));
-            variation.Dispose();
-            variation = new Bitmap(original);
-
-            variation.RotateFlip(RotateFlipType.Rotate270FlipNone);
-            imagesData.Add(BitmapToDoubleArray(variation));
-            variation.Dispose();
-            variation = new Bitmap(original);
-
-            variation.RotateFlip(RotateFlipType.Rotate90FlipXY);
-            imagesData.Add(BitmapToDoubleArray(variation));
-            variation.Dispose();
-            variation = new Bitmap(original);
-
-            variation.RotateFlip(RotateFlipType.RotateNoneFlipX);
-            imagesData.Add(BitmapToDoubleArray(variation));
-            variation.Dispose();
-            variation = new Bitmap(original);
-
-            variation.RotateFlip(RotateFlipType.Rotate180FlipY);
-            imagesData.Add(BitmapToDoubleArray(variation));
-            variation.Dispose();
-            variation = new Bitmap(original);
-
-            variation.RotateFlip(RotateFlipType.Rotate90FlipX);
-            imagesData.Add(BitmapToDoubleArray(variation));
-            variation.Dispose();
-            variation = new Bitmap(original);
-
-            variation.RotateFlip(RotateFlipType.Rotate270FlipY);
-            imagesData.Add(BitmapToDoubleArray(variation));
-            variation.Dispose();
-            variation = new Bitmap(original);
-
-            variation.RotateFlip(RotateFlipType.Rotate180FlipX);
-            imagesData.Add(BitmapToDoubleArray(variation));
-            variation.Dispose();
-            variation = new Bitmap(original);
-
-            variation.RotateFlip(RotateFlipType.RotateNoneFlipY);
-            imagesData.Add(BitmapToDoubleArray(variation));
-            variation.Dispose();
-            variation = new Bitmap(original);
-
-            variation.RotateFlip(RotateFlipType.Rotate270FlipX);
-            imagesData.Add(BitmapToDoubleArray(variation));
-            variation.Dispose();
-            variation = new Bitmap(original);
-
-            variation.RotateFlip(RotateFlipType.Rotate90FlipY);
-            imagesData.Add(BitmapToDoubleArray(variation));
-            variation.Dispose();
-
-            return imagesData;
-        }
 
         #endregion Training
 
@@ -656,60 +578,6 @@ namespace AbstractVideoGenerator
         #endregion
 
         #region network things
-
-        public static double[] BitmapToDoubleArray(Bitmap bitmap, double dataDividend = 255)
-        {
-            int imageSize = bitmap.Height * bitmap.Width;
-            int bitmapData = imageSize * 3;
-
-            double[] output = new double[bitmapData];
-            int i = 0;
-            for (int x = 0; x < bitmap.Width; x++)
-            {
-                for (int y = 0; y < bitmap.Height; y++)
-                {
-                    Color cPixel = bitmap.GetPixel(x, y);
-
-                    output[i] = cPixel.R / dataDividend;
-                    i++;
-                    output[i] = cPixel.G / dataDividend;
-                    i++;
-                    output[i] = cPixel.B / dataDividend;
-                    i++;
-                }
-            }
-            return output;
-        }
-
-        public static Bitmap DoubleArrayToBitmap(double[] imageData, int bitmapWidth, int bitmapHeight, double dataMultiplier = 255)
-        {
-            int counter = 0;
-            Bitmap output = new Bitmap(bitmapWidth, bitmapHeight);
-            for (int x = 0; x < bitmapWidth; x++)
-            {
-                for (int y = 0; y < bitmapHeight; y++)
-                {
-                    byte R, G, B;
-
-                    R = Convert.ToByte(Math.Min(Math.Max(imageData[counter], 0), 1) * dataMultiplier);
-                    counter++;
-                    G = Convert.ToByte(Math.Min(Math.Max(imageData[counter], 0), 1) * dataMultiplier);
-                    counter++;
-                    B = Convert.ToByte(Math.Min(Math.Max(imageData[counter], 0), 1) * dataMultiplier);
-                    counter++;
-
-                    Color color = Color.FromArgb(255, R, G, B);
-
-                    output.SetPixel(x, y, color);
-                }
-            }
-            return output;
-        }
-
-        /*public List<Bitmap> GetBitmapVariations(Bitmap originalBitmap)
-        {
-            //originalBitmap.Clone();
-        }*/
 
         public double[] GetGaussianNoise(double mean, double standarDeviation, int arrayLength)
         {
