@@ -120,8 +120,11 @@ namespace NetworkTrainer
         {
             var watch = Stopwatch.StartNew();
 
+            Console.WriteLine("Creating network...");
             NN output = new NN(autoEncoderShape, NeatNetwork.Libraries.Activation.ActivationFunctions.Sigmoid);
+            Console.WriteLine("Network created!");
 
+            Console.WriteLine("Making modifications of the image and parsing all images...");
             List<double[]> imagesData = new List<double[]>();
             foreach (var imagePath in paths)
             {
@@ -133,7 +136,9 @@ namespace NetworkTrainer
                 original.Dispose();
                 reduced.Dispose();
             }
+            Console.WriteLine("Finished making modifications of the image and parsing all images!");
 
+            Console.WriteLine("Training network...");
             var testCost = output.SupervisedTrain(imagesData, imagesData, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate, 0.05, 6, false);
             watch.Stop();
 
