@@ -18,13 +18,14 @@ namespace NetworkTrainer
     {
         public static int NetworkOutputSquareSideResolution = 50;
 
+        [STAThread]
         public static void Main(string[] args)
         {
             while (true)
             {
                 if (MessageBox.Show("Do you wish to train a network???", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
-                    if (MessageBox.Show($"The current network output square side resolution is {NetworkOutputSquareSideResolution}, do you wish to change it???", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    if (MessageBox.Show($"The current network output square side resolution is {NetworkOutputSquareSideResolution}, do you want to keep it???", "", MessageBoxButtons.YesNo) == DialogResult.No)
                     {
                         Console.WriteLine("Select a resolution for the network output square side, valid inputs are numbers in this format: 20");
                         NetworkOutputSquareSideResolution = GetInputInt();
@@ -69,6 +70,7 @@ namespace NetworkTrainer
                             paths.AddRange(currentPaths);
                     } while (MessageBox.Show("Do you wish to add one more folder for training", "", MessageBoxButtons.YesNo) == DialogResult.Yes);
 
+                    Console.WriteLine("Started training!");
                     NN autoencoder = null;
                     switch (inputedOption)
                     {
