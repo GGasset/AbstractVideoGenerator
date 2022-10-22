@@ -4,11 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static Functionality.ImageProcessing;
+using static Functionality.PathGetter;
 
 namespace NetworkTrainer
 {
@@ -26,6 +28,7 @@ namespace NetworkTrainer
                     {
                         Console.WriteLine("Select a resolution for the network output square side, valid inputs are numbers in this format: 20");
                         NetworkOutputSquareSideResolution = GetInputInt();
+                        Console.WriteLine("\n");
                     }
 
                     int imageResolution = NetworkOutputSquareSideResolution * NetworkOutputSquareSideResolution;
@@ -36,6 +39,75 @@ namespace NetworkTrainer
                     int[] generativeShape = new int[] { resolutionDataSize, 500, 150, 100, 50, 50, 250, 300, 500, resolutionDataSize };
 
                     int[] discriminativeShape = new int[] { resolutionDataSize, 500, 100, 20, 2, 1 };
+
+                    int[] acceptedOptions = new int[] { 1, 2 };
+                    int inputedOption = -1;
+                    bool successfullySelectedOption = true;
+                    do
+                    {
+                        try
+                        {
+                            Console.WriteLine("What type of network do you wish to train??\n\t1 - autoencoder\n\t2 - Gan");
+                            inputedOption = Convert.ToInt32(Console.ReadLine());
+                            successfullySelectedOption = acceptedOptions.Contains(inputedOption);
+                        }
+                        catch (Exception)
+                        {
+                            Console.WriteLine("Please input an integer number");
+                            successfullySelectedOption = false;
+                        }
+                    } while (!successfullySelectedOption);
+
+                    Console.WriteLine("Enter learning rate value. The format must be one of these: 0.5 - .5 - 1");
+                    double learningRate = GetInputDouble();
+
+                    List<string> paths = new List<string>();
+                    do
+                    {
+                        List<string> currentPaths = GetImagePathsFromFolder();
+                        if (currentPaths != null)
+                            paths.AddRange(currentPaths);
+                    } while (MessageBox.Show("Do you wish to add one more folder for training", "", MessageBoxButtons.YesNo) == DialogResult.Yes);
+
+                    NN autoencoder = null;
+                    switch (inputedOption)
+                    {
+                        case 1:
+                            autoencoder = TrainAutoEncoderOnImages(paths, autoEncoderShape, learningRate, true);
+                            break;
+                    }
+
+                    SaveFileDialog saveFileDialog = new SaveFileDialog()
+                    {
+                        InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                        AddExtension = true,
+                        Filter = "Text files (*.txt)|*.txt",
+                        Title = "Select name and where you wish to save your networks",
+                    };
+
+                    while (saveFileDialog.ShowDialog() != DialogResult.OK);
+
+                    string path = saveFileDialog.FileName;
+
+                    string fileText = string.Empty;
+
+                    List<Task<string>> networkToStringTasks = new List<Task<string>>();
+                    switch (inputedOption)
+                    {
+                        case 1:
+                            fileText += "autoencoder";
+                            networkToStringTasks.Add(Task.Run(() => autoencoder.ToString()));
+                            break;
+                    }
+                    fileText += "\nJGG\n";
+
+                    foreach (var toStringTask in networkToStringTasks)
+                    {
+                        toStringTask.Wait();
+                        fileText += toStringTask.Result;
+                    }
+
+                    File.WriteAllText(path, fileText);
                 }
 
                 RunNetworkExecutionInterface();
@@ -82,6 +154,26 @@ namespace NetworkTrainer
                 catch (Exception)
                 {
                     Console.WriteLine($"Didn't match format, please just enter an integer number.");
+                }
+            }
+        }
+
+        private static double GetInputDouble()
+        {
+            while (true)
+            {
+                try
+                {
+                    string numberStr = Console.ReadLine();
+                    if (!numberStr.StartsWith("."))
+                        numberStr = "0" + numberStr;
+                    if (numberStr.Split('.').Length > 2)
+                        throw new Exception();
+                    double output = Convert.ToDouble(numberStr);
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Didn't match specified format, please enter a decimal number in this format: 0.5 - .5 - 1");
                 }
             }
         }
