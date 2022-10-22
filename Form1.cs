@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using MathNet.Numerics.Distributions;
+﻿using MathNet.Numerics.Distributions;
 using NeatNetwork;
 using NeatNetwork.NetworkFiles;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 using static Functionality.ImageProcessing;
 using static Functionality.PathGetter;
 
@@ -20,26 +14,27 @@ namespace AbstractVideoGenerator
 {
     public partial class MainForm : Form
     {
-        int networkResolution;
-        int networkResolitionDataSize;
+        private int networkResolution;
+        private int networkResolitionDataSize;
 
-        int[] autoEncoderShape,
+        private int[] autoEncoderShape,
             generativeShape,
             discriminatoryShape;
-        int autoencoderCompressedLayer;
 
-        NeuronHolder.NeuronTypes[] autoEncoderLayers,
+        private int autoencoderCompressedLayer;
+
+        private NeuronHolder.NeuronTypes[] autoEncoderLayers,
             generativeLayers,
             discriminatoryLayers;
 
-        NN autoEncoder, discriminative, generative;
+        private NN autoEncoder, discriminative, generative;
 
-        List<string[]> imagePaths;
-        List<string> folderNames;
-        List<string> shuffledImages;
+        private List<string[]> imagePaths;
+        private List<string> folderNames;
+        private List<string> shuffledImages;
 
-        Timer autoencoderVideoTimer;
-        double[] compressedVideoImage;
+        private Timer autoencoderVideoTimer;
+        private double[] compressedVideoImage;
 
         #region Form things
 
@@ -47,6 +42,7 @@ namespace AbstractVideoGenerator
         {
             InitializeComponent();
         }
+
         private void MainForm_Load(object sender, EventArgs e)
         {
         }
@@ -72,7 +68,7 @@ namespace AbstractVideoGenerator
                 Title = "Select name and where you wish to save your networks",
             };
 
-            while (saveFileDialog.ShowDialog() != DialogResult.OK);
+            while (saveFileDialog.ShowDialog() != DialogResult.OK) ;
 
             var path = saveFileDialog.FileName;
             string str = string.Empty;
@@ -99,15 +95,9 @@ namespace AbstractVideoGenerator
 
             str += "\nJGG\n";
 
-            bool isFinished = false;
-            while (!isFinished)
+            foreach (var task in strTasks)
             {
-                System.Threading.Thread.Sleep(200);
-                isFinished = true;
-                foreach (var task in strTasks)
-                {
-                    isFinished = isFinished && task.IsCompleted;
-                }
+                task.Wait();
             }
 
             foreach (var strTask in strTasks)
@@ -119,7 +109,6 @@ namespace AbstractVideoGenerator
 
             File.WriteAllText(path, str);
         }
-
 
         private void loadFromFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -134,7 +123,7 @@ namespace AbstractVideoGenerator
                 Multiselect = false,
             };
 
-            while (openFileDialog.ShowDialog() != DialogResult.OK);
+            while (openFileDialog.ShowDialog() != DialogResult.OK) ;
 
             var filePath = openFileDialog.FileName;
             var text = File.ReadAllText(filePath);
@@ -166,15 +155,9 @@ namespace AbstractVideoGenerator
                 return;
             }
 
-            bool isCompleted = false;
-            while (!isCompleted)
+            foreach (var networkTask in NNTasks)
             {
-                System.Threading.Thread.Sleep(100);
-                isCompleted = true;
-                foreach (var networkTask in NNTasks)
-                {
-                    isCompleted = isCompleted && networkTask.IsCompleted;
-                }
+                networkTask.Wait();
             }
 
             if (header == "autoencoder Gan")
@@ -261,7 +244,7 @@ namespace AbstractVideoGenerator
             Bitmap bmp = new Bitmap(imagePath);
             Bitmap downscaledBmp = new Bitmap(bmp, networkOutputSquareSideSize, networkOutputSquareSideSize);
             Display.Image = new Bitmap(bmp, Display.Size);
-            
+
             double[] X = BitmapToDoubleArray(downscaledBmp);
             compressedVideoImage = autoEncoder.ExecuteUpToLayer(X, autoencoderCompressedLayer);
 
@@ -324,11 +307,11 @@ namespace AbstractVideoGenerator
             return autoencoderCompressedLayer;
         }
 
-    #endregion
+        #endregion functionality
 
-    #region network things
+        #region network things
 
-    public double[] GetGaussianNoise(double mean, double standarDeviation, int arrayLength)
+        public double[] GetGaussianNoise(double mean, double standarDeviation, int arrayLength)
         {
             double[] output = new double[arrayLength];
             Normal normalDistribution = new Normal(mean, standarDeviation);
@@ -337,6 +320,6 @@ namespace AbstractVideoGenerator
             return output;
         }
 
-        #endregion
+        #endregion network things
     }
 }
