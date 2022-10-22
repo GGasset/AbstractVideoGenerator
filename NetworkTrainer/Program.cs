@@ -132,7 +132,7 @@ namespace NetworkTrainer
                 reduced.Dispose();
             }
 
-            var testCost = output.SupervisedTrain(imagesData, imagesData, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate, 0.05, 3, false);
+            var testCost = output.SupervisedTrain(imagesData, imagesData, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate, 0.05, 6, false);
             watch.Stop();
 
             if (showResultMessageBox)
