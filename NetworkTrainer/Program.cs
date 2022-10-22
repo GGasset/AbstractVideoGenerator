@@ -142,7 +142,7 @@ namespace NetworkTrainer
             Console.WriteLine("Finished making modifications of the image and parsing all images!");
 
             Console.WriteLine("Training network...");
-            var testCost = output.SupervisedTrain(imagesData, imagesData, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate, 0.05, 6, false);
+            var testCost = output.SupervisedTrain(imagesData, imagesData, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate, 0.05, 10, false);
             watch.Stop();
 
             if (showResultMessageBox)
