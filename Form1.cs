@@ -335,21 +335,6 @@ namespace AbstractVideoGenerator
 
         #region functionality
 
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-
-            openFileDialog.ShowDialog();
-
-            Bitmap original = new Bitmap(openFileDialog.FileName);
-            Bitmap downScaled = new Bitmap(original, new Size(networkSideSize, networkSideSize));
-            double[] imageData = BitmapToDoubleArray(downScaled);
-            Bitmap reconstructed = DoubleArrayToBitmap(imageData, networkSideSize, networkSideSize);
-            Bitmap upScaled = new Bitmap(reconstructed, Display.Size);
-            Display.Image = upScaled;
-        }
-
         public static string FolderToName(string folderPath)
         {
             if (folderPath.EndsWith(@"\"))
