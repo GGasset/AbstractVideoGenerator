@@ -165,7 +165,7 @@ namespace NetworkTrainer
                 try
                 {
                     string numberStr = Console.ReadLine();
-                    if (!numberStr.StartsWith("."))
+                    if (numberStr.StartsWith("."))
                         numberStr = "0" + numberStr;
                     if (numberStr.Split('.').Length > 2)
                         throw new Exception();
