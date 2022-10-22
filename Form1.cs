@@ -20,8 +20,6 @@ namespace AbstractVideoGenerator
 {
     public partial class MainForm : Form
     {
-
-        public static int networkSideSize = 60;
         int networkResolution;
         int networkResolitionDataSize;
 
@@ -51,36 +49,6 @@ namespace AbstractVideoGenerator
         }
         private void MainForm_Load(object sender, EventArgs e)
         {
-            int resolution = networkResolution = networkSideSize * networkSideSize;
-            int resolutionDataSize = networkResolitionDataSize = resolution * 3;
-
-            autoEncoderShape = new int[] { resolutionDataSize, 500, 150, 27, 150, 500, resolutionDataSize };
-
-            autoencoderCompressedLayer = -1;
-            int minLayerLength = int.MaxValue;
-            for (int i = 1; i < autoEncoderShape.Length; i++)
-            {
-                if (autoEncoderShape[i] < minLayerLength)
-                    autoencoderCompressedLayer = i - 1;
-            }
-            
-            /*autoEncoderLayers = new NeuronHolder.NeuronTypes[autoEncoderShape.Length - 1];
-            for (int x = 0; x < autoEncoderLayers.Length; x++)
-                autoEncoderLayers[x] = NeuronHolder.NeuronTypes.Neuron;*/
-
-
-            generativeShape = new int[] { resolutionDataSize, 500, 150, 100, 50, 50, 250, 300, 500, resolutionDataSize };
-
-            generativeLayers = new NeuronHolder.NeuronTypes[generativeShape.Length - 1];
-            /*for (int i = 0; i < generativeLayers.Length; i++)
-                generativeLayers[i] = NeuronHolder.NeuronTypes.LSTM;*/
-
-
-            discriminatoryShape = new int[] { resolutionDataSize, 500, 100, 20, 2, 1 };
-
-            /*discriminatoryLayers = new NeuronHolder.NeuronTypes[autoEncoderShape.Length - 1];
-            for (int x = 0; x < discriminatoryLayers.Length; x++)
-                discriminatoryLayers[x] = NeuronHolder.NeuronTypes.LSTM;*/
         }
 
         #region Save Load (IO)
@@ -228,9 +196,7 @@ namespace AbstractVideoGenerator
 
         #endregion Save Load (IO)
 
-        #region Auto encoder
-
-        #region Execution
+        #region Auto encoder execution
 
         private void ShowAutoencoderImageBttn_Click(object sender, EventArgs e)
         {
@@ -257,12 +223,14 @@ namespace AbstractVideoGenerator
                 originalImage = new Bitmap(shuffledImages[new Random(DateTime.Now.Millisecond + rI++).Next(shuffledImages.Count)]);
             }
 
-            Bitmap reducedImage = new Bitmap(originalImage, new Size(networkSideSize, networkSideSize));
+            int networkOutputSquareSideSize = GetAutoencoderOutputSquareSideSize();
+
+            Bitmap reducedImage = new Bitmap(originalImage, new Size(networkOutputSquareSideSize, networkOutputSquareSideSize));
 
             double[] X = BitmapToDoubleArray(reducedImage);
             double[] reconstructedImage = autoEncoder.Execute(X);
 
-            Bitmap reconstructedBitmap = DoubleArrayToBitmap(reconstructedImage, networkSideSize, networkSideSize);
+            Bitmap reconstructedBitmap = DoubleArrayToBitmap(reconstructedImage, networkOutputSquareSideSize, networkOutputSquareSideSize);
             Bitmap augmentedBitmap = new Bitmap(reconstructedBitmap, Display.Size);
             Display.Image = augmentedBitmap;
 
@@ -288,8 +256,10 @@ namespace AbstractVideoGenerator
             if (imagePath == null)
                 return;
 
+            int networkOutputSquareSideSize = GetAutoencoderOutputSquareSideSize();
+
             Bitmap bmp = new Bitmap(imagePath);
-            Bitmap downscaledBmp = new Bitmap(bmp, networkSideSize, networkSideSize);
+            Bitmap downscaledBmp = new Bitmap(bmp, networkOutputSquareSideSize, networkOutputSquareSideSize);
             Display.Image = new Bitmap(bmp, Display.Size);
             
             double[] X = BitmapToDoubleArray(downscaledBmp);
@@ -305,7 +275,8 @@ namespace AbstractVideoGenerator
         private void ShowAlteredImage(object sender, EventArgs e)
         {
             var nOutput = autoEncoder.ExecuteFromLayer(autoencoderCompressedLayer, compressedVideoImage);
-            Bitmap outputNetworkImage = DoubleArrayToBitmap(nOutput, networkSideSize, networkSideSize);
+            int networkOutputSquareSideSize = GetAutoencoderOutputSquareSideSize();
+            Bitmap outputNetworkImage = DoubleArrayToBitmap(nOutput, networkOutputSquareSideSize, networkOutputSquareSideSize);
             Bitmap upscaledBmp = new Bitmap(outputNetworkImage, Display.Size);
             Display.Image.Dispose();
             Display.Image = upscaledBmp;
@@ -320,16 +291,7 @@ namespace AbstractVideoGenerator
             }
         }
 
-        #endregion Execution
-
-        #region Training
-
-
-        /// <returns>Includes original image data</returns>
-
-        #endregion Training
-
-        #endregion Auto encoder
+        #endregion Auto encoder execution
 
         #endregion Form things
 
@@ -344,12 +306,29 @@ namespace AbstractVideoGenerator
             return folderPath;
         }
 
+        private int GetAutoencoderOutputSquareSideSize()
+        {
+            int output = autoEncoder.Shape[0];
+            output /= 3;
+            output = Convert.ToInt32(Math.Sqrt(output));
+            return output;
+        }
 
-        #endregion
+        private int GetAutoencoderMostCompressedLayer()
+        {
+            autoencoderCompressedLayer = -1;
+            int minLayerLength = int.MaxValue;
+            for (int i = 1; i < autoEncoderShape.Length; i++)
+                if (autoEncoderShape[i] < minLayerLength)
+                    autoencoderCompressedLayer = i - 1;
+            return autoencoderCompressedLayer;
+        }
 
-        #region network things
+    #endregion
 
-        public double[] GetGaussianNoise(double mean, double standarDeviation, int arrayLength)
+    #region network things
+
+    public double[] GetGaussianNoise(double mean, double standarDeviation, int arrayLength)
         {
             double[] output = new double[arrayLength];
             Normal normalDistribution = new Normal(mean, standarDeviation);
