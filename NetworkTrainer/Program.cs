@@ -170,6 +170,7 @@ namespace NetworkTrainer
                     if (numberStr.Split('.').Length > 2)
                         throw new Exception();
                     double output = Convert.ToDouble(numberStr);
+                    return output;
                 }
                 catch (Exception)
                 {
