@@ -67,7 +67,10 @@ namespace NetworkTrainer
                     {
                         List<string> currentPaths = GetImagePathsFromFolder();
                         if (currentPaths != null)
+                        {
                             paths.AddRange(currentPaths);
+                            Console.WriteLine(GetFolderPathFromFilePath(currentPaths[0]));
+                        }
                     } while (MessageBox.Show("Do you wish to add one more folder for training", "", MessageBoxButtons.YesNo) == DialogResult.Yes);
 
                     Console.WriteLine("Started training!");
@@ -147,6 +150,11 @@ namespace NetworkTrainer
                     "Traning info", MessageBoxButtons.OK);
 
             return output;
+        }
+
+        private static string GetFolderPathFromFilePath(string folderPath)
+        {
+            return Path.GetDirectoryName(folderPath);
         }
 
         private static int GetInputInt()
