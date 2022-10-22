@@ -6,15 +6,10 @@ using System.Windows.Forms;
 
 namespace AbstractVideoGenerator
 {
-    internal static class Program
+    public static class Program
     {
-        static void Main()
+        public static void Main()
         {
-            if (MessageBox.Show("Do you wish to train a network?", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
-            {
-                NetworkTrainer.Program.Main(null);
-            }
-
             RunApp();
         }
 

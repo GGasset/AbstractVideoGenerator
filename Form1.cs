@@ -14,12 +14,12 @@ using MathNet.Numerics.Distributions;
 using NeatNetwork;
 using NeatNetwork.NetworkFiles;
 using static Functionality.ImageProcessing;
+using static Functionality.PathGetter;
 
 namespace AbstractVideoGenerator
 {
     public partial class MainForm : Form
     {
-        static string[] supportedExtensions = new string[] { "JPG", "JPEG", "PNG" };
 
         public static int networkSideSize = 60;
         int networkResolution;
@@ -324,61 +324,6 @@ namespace AbstractVideoGenerator
 
         #region Training
 
-        private void TrainAutoEnconderForImageFolderBttn_Click(object sender, EventArgs e)
-        {
-            if (DialogResult.Yes != MessageBox.Show("Do you wish to train an autoencoder network", "", MessageBoxButtons.YesNo))
-                return;
-
-            if (autoencoderVideoTimer != null)
-                autoencoderVideoTimer.Stop();
-            GetImagePathsFromFolder();
-
-            autoEncoder = TrainAutoEncoderOnImages(shuffledImages, autoEncoderShape, true);
-        }
-
-        private void TrainAutoencoder1NForAllFoldersBttn_Click(object sender, EventArgs e)
-        {
-            if (DialogResult.Yes != MessageBox.Show("Do you wish to start training an autoencoder network", "", MessageBoxButtons.YesNo))
-            {
-                return;
-            }
-
-            if (autoencoderVideoTimer != null)
-                autoencoderVideoTimer.Stop();
-            GetImagePathsFromFolderContainingImageFolders(false);
-
-            autoEncoder = TrainAutoEncoderOnImages(shuffledImages, autoEncoderShape, true);
-        }
-
-        private NN TrainAutoEncoderOnImages(List<string> paths, int[] autoEncoderShape, bool showResultMessageBox)
-        {
-            var watch = Stopwatch.StartNew();
-
-            NN output = new NN(autoEncoderShape, NeatNetwork.Libraries.Activation.ActivationFunctions.Sigmoid);
-
-            double learningRate = Convert.ToDouble(LearningRateRichTxtBox.Text);
-
-            List<double[]> imagesData = new List<double[]>();
-            foreach (var imagePath in shuffledImages)
-            {
-                Bitmap original = new Bitmap(imagePath);
-                Bitmap reduced = new Bitmap(original, new Size(networkSideSize, networkSideSize));
-
-                imagesData.AddRange(GetImageVariations(reduced));
-
-                original.Dispose();
-                reduced.Dispose();
-            }
-
-            var testCost = output.SupervisedTrain(imagesData, imagesData, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate, Convert.ToDouble(LearningRateRichTxtBox.Text), 3, false);
-            watch.Stop();
-
-            if (showResultMessageBox)
-                MessageBox.Show($"Training of a new autoencoder with {paths.Count} images and {imagesData.Count} images including modificated images in {watch.Elapsed.TotalMinutes} minutes with a test cost of {testCost}", 
-                    "Traning info", MessageBoxButtons.OK);
-
-            return (output);
-        }
 
         /// <returns>Includes original image data</returns>
 
@@ -386,152 +331,10 @@ namespace AbstractVideoGenerator
 
         #endregion Auto encoder
 
-        private void LearningRateRichTxtBox_TextChanged(object sender, EventArgs e)
-        {
-            char[] text = LearningRateRichTxtBox.Text.ToCharArray();
-
-            string formatted = string.Empty;
-            foreach (var character in text)
-            {
-                if (character == ',' || char.IsDigit(character))
-                    formatted += character;
-                else if (character == '.')
-                    formatted += ',';
-            }
-            if (formatted.StartsWith(","))
-                formatted = formatted.Insert(0, "0");
-
-            if (formatted.Split(new char[] { ',' }).Length > 2)
-                formatted = formatted.Remove(formatted.LastIndexOf(','), 1);
-
-            if (formatted != new string(text))
-                LearningRateRichTxtBox.Text = formatted;
-        }
-
         #endregion Form things
 
         #region functionality
 
-        public void GetImagePathsFromFolder()
-        {
-            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog()
-            {
-                Description = "You must select a folder containing images"
-            };
-
-            if (DialogResult.OK != folderBrowserDialog.ShowDialog())
-            {
-                return;
-            }
-
-            List<string> paths = new List<string>();
-            paths.AddRange
-                (
-                    FilterFiles(Directory.GetFiles(folderBrowserDialog.SelectedPath))
-                );
-            shuffledImages = ShufflePaths(paths);
-            comboBox.Items.Clear();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="multipleNNs">If multiple nn is set to true combo box will be filled with options</param>
-        public void GetImagePathsFromFolderContainingImageFolders(bool multipleNNs)
-        {
-            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog()
-            {
-                Description = "You must select a folder with folders that contains images"
-            };
-
-            if (folderBrowserDialog.ShowDialog() != DialogResult.OK)
-            {
-                return;
-            }
-
-
-            List<string> directories = new List<string>(Directory.GetDirectories(folderBrowserDialog.SelectedPath));
-
-            List<string[]> imagesPaths = new List<string[]>();
-            List<string> unhirearchicalImagePaths = new List<string>();
-
-            foreach (var imageDirectory in directories)
-            {
-                string[] currentPaths;
-                imagesPaths.Add(currentPaths = FilterFiles(Directory.GetFiles(imageDirectory)));
-                unhirearchicalImagePaths.AddRange(currentPaths);
-            }
-
-            shuffledImages = ShufflePaths(unhirearchicalImagePaths);
-
-            List<int> emptyFoldersIndexes = new List<int>();
-            for (int i = 0; i < directories.Count; i++)
-                if (imagesPaths[i].Length == 0)
-                    emptyFoldersIndexes.Add(i);
-
-            for (int i = emptyFoldersIndexes.Count - 1; i >= 0; i--)
-            {
-                directories.RemoveAt(emptyFoldersIndexes[i]);
-                imagesPaths.RemoveAt(emptyFoldersIndexes[i]);
-            }
-
-            folderNames = new List<string>();
-            foreach (var directoryPath in directories)
-            {
-                string folderName = FolderToName(directoryPath);
-                folderNames.Add(folderName);
-            }
-            comboBox.Items.Clear();
-            if (multipleNNs)
-            {
-                comboBox.Items.AddRange(folderNames.ToArray());
-                comboBox.Items.Add("");
-            }
-        }
-
-        public string GetImagePath()
-        {
-            string output = string.Empty;
-            using (OpenFileDialog openFileDialog = new OpenFileDialog())
-            {
-                openFileDialog.Filter = "Image files (*.BMP, *.JPG, *.PNG)|*.BMP;*.JPG;*.PNG";
-                openFileDialog.Multiselect = false;
-                openFileDialog.Title = "Select image";
-
-                bool isSupportedFile = false;
-                while (!isSupportedFile)
-                {
-                    if (DialogResult.Cancel == openFileDialog.ShowDialog())
-                    {
-                        return null;
-                    }
-                    output = openFileDialog.FileName;
-                    isSupportedFile = IsSupportedFile(output);
-                    if (!isSupportedFile)
-                        MessageBox.Show("Please select an image");
-                }
-            }
-            return output;
-        }
-
-        public bool IsSupportedFile(string filePath)
-        {
-            bool containsSupportedExtension = false;
-            foreach (var supportedExtension in supportedExtensions)
-                containsSupportedExtension = filePath.ToLowerInvariant().Contains(supportedExtension.ToLowerInvariant()) || containsSupportedExtension;
-            return containsSupportedExtension;
-        }
-
-        public string[] FilterFiles(string[] filePaths)
-        {
-            var output = new List<string>();
-            foreach (var filePath in filePaths)
-            {
-                if (IsSupportedFile(filePath))
-                    output.Add(filePath);
-            }
-            return output.ToArray();
-        }
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -556,24 +359,6 @@ namespace AbstractVideoGenerator
             return folderPath;
         }
 
-        static int rI = 0;
-        public static List<string> ShufflePaths(List<string> paths)
-        {
-            //Create a copy
-            List<string> input = paths.ToList();
-            Random r = new Random(DateTime.Now.Millisecond + rI++);
-
-            List<string> output = new List<string>();
-            int pathsCount = paths.Count;
-            for (int i = 0; i < pathsCount; i++)
-            {
-                int selectedI = r.Next(input.Count);
-
-                output.Add(input[selectedI]);
-                input.RemoveAt(selectedI);
-            }
-            return output;
-        }
 
         #endregion
 

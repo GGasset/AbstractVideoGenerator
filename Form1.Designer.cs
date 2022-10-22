@@ -33,19 +33,12 @@
             this.saveToFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadFromFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.comboBox = new System.Windows.Forms.ComboBox();
             this.Display = new System.Windows.Forms.PictureBox();
             this.ShowAutoencoderImageBttn = new System.Windows.Forms.Button();
-            this.TrainAutoencoder1NForAllFoldersBttn = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.button5 = new System.Windows.Forms.Button();
-            this.TrainAutoEnconderForImageFolderBttn = new System.Windows.Forms.Button();
             this.AutoencoderVideoSelectedImageBttn = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
-            this.LearningRateRichTxtBox = new System.Windows.Forms.RichTextBox();
-            this.button1 = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Display)).BeginInit();
             this.flowLayoutPanel1.SuspendLayout();
@@ -93,21 +86,10 @@
             this.loadFromFileToolStripMenuItem.Text = "Load from file";
             this.loadFromFileToolStripMenuItem.Click += new System.EventHandler(this.loadFromFileToolStripMenuItem_Click);
             // 
-            // comboBox
-            // 
-            this.comboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.comboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox.FormattingEnabled = true;
-            this.comboBox.Location = new System.Drawing.Point(2, 27);
-            this.comboBox.Name = "comboBox";
-            this.comboBox.Size = new System.Drawing.Size(590, 21);
-            this.comboBox.TabIndex = 1;
-            // 
             // Display
             // 
             this.Display.BackColor = System.Drawing.Color.DarkOrange;
-            this.Display.Location = new System.Drawing.Point(2, 54);
+            this.Display.Location = new System.Drawing.Point(3, 27);
             this.Display.Name = "Display";
             this.Display.Size = new System.Drawing.Size(150, 150);
             this.Display.TabIndex = 2;
@@ -117,7 +99,7 @@
             // 
             this.ShowAutoencoderImageBttn.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.ShowAutoencoderImageBttn.Location = new System.Drawing.Point(6, 106);
+            this.ShowAutoencoderImageBttn.Location = new System.Drawing.Point(6, 19);
             this.ShowAutoencoderImageBttn.Name = "ShowAutoencoderImageBttn";
             this.ShowAutoencoderImageBttn.Size = new System.Drawing.Size(415, 23);
             this.ShowAutoencoderImageBttn.TabIndex = 3;
@@ -125,23 +107,11 @@
             this.ShowAutoencoderImageBttn.UseVisualStyleBackColor = true;
             this.ShowAutoencoderImageBttn.Click += new System.EventHandler(this.ShowAutoencoderImageBttn_Click);
             // 
-            // TrainAutoencoder1NForAllFoldersBttn
-            // 
-            this.TrainAutoencoder1NForAllFoldersBttn.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.TrainAutoencoder1NForAllFoldersBttn.Location = new System.Drawing.Point(6, 48);
-            this.TrainAutoencoder1NForAllFoldersBttn.Name = "TrainAutoencoder1NForAllFoldersBttn";
-            this.TrainAutoencoder1NForAllFoldersBttn.Size = new System.Drawing.Size(415, 23);
-            this.TrainAutoencoder1NForAllFoldersBttn.TabIndex = 4;
-            this.TrainAutoencoder1NForAllFoldersBttn.Text = "Train with a folder that contains image folders, all folders - 1 NN";
-            this.TrainAutoencoder1NForAllFoldersBttn.UseVisualStyleBackColor = true;
-            this.TrainAutoencoder1NForAllFoldersBttn.Click += new System.EventHandler(this.TrainAutoencoder1NForAllFoldersBttn_Click);
-            // 
             // button2
             // 
             this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.button2.Location = new System.Drawing.Point(6, 164);
+            this.button2.Location = new System.Drawing.Point(6, 77);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(415, 23);
             this.button2.TabIndex = 5;
@@ -155,53 +125,29 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flowLayoutPanel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.flowLayoutPanel1.Controls.Add(this.groupBox1);
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(156, 54);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(159, 27);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(437, 357);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(437, 151);
             this.flowLayoutPanel1.TabIndex = 6;
             // 
             // groupBox1
             // 
             this.groupBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.groupBox1.Controls.Add(this.button5);
-            this.groupBox1.Controls.Add(this.TrainAutoEnconderForImageFolderBttn);
             this.groupBox1.Controls.Add(this.AutoencoderVideoSelectedImageBttn);
             this.groupBox1.Controls.Add(this.button2);
             this.groupBox1.Controls.Add(this.ShowAutoencoderImageBttn);
-            this.groupBox1.Controls.Add(this.TrainAutoencoder1NForAllFoldersBttn);
             this.groupBox1.Location = new System.Drawing.Point(3, 3);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(427, 195);
+            this.groupBox1.Size = new System.Drawing.Size(427, 110);
             this.groupBox1.TabIndex = 6;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Autoencoder network";
-            // 
-            // button5
-            // 
-            this.button5.Location = new System.Drawing.Point(6, 77);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(415, 23);
-            this.button5.TabIndex = 8;
-            this.button5.Text = "Train with a folder that contains image folders, 1 folder - 1 NN";
-            this.button5.UseVisualStyleBackColor = true;
-            // 
-            // TrainAutoEnconderForImageFolderBttn
-            // 
-            this.TrainAutoEnconderForImageFolderBttn.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.TrainAutoEnconderForImageFolderBttn.Location = new System.Drawing.Point(6, 19);
-            this.TrainAutoEnconderForImageFolderBttn.Name = "TrainAutoEnconderForImageFolderBttn";
-            this.TrainAutoEnconderForImageFolderBttn.Size = new System.Drawing.Size(415, 23);
-            this.TrainAutoEnconderForImageFolderBttn.TabIndex = 7;
-            this.TrainAutoEnconderForImageFolderBttn.Text = "Train auto encoder for a specific folder";
-            this.TrainAutoEnconderForImageFolderBttn.UseVisualStyleBackColor = true;
-            this.TrainAutoEnconderForImageFolderBttn.Click += new System.EventHandler(this.TrainAutoEnconderForImageFolderBttn_Click);
             // 
             // AutoencoderVideoSelectedImageBttn
             // 
             this.AutoencoderVideoSelectedImageBttn.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.AutoencoderVideoSelectedImageBttn.Location = new System.Drawing.Point(6, 135);
+            this.AutoencoderVideoSelectedImageBttn.Location = new System.Drawing.Point(6, 48);
             this.AutoencoderVideoSelectedImageBttn.Name = "AutoencoderVideoSelectedImageBttn";
             this.AutoencoderVideoSelectedImageBttn.Size = new System.Drawing.Size(415, 23);
             this.AutoencoderVideoSelectedImageBttn.TabIndex = 6;
@@ -209,50 +155,14 @@
             this.AutoencoderVideoSelectedImageBttn.UseVisualStyleBackColor = true;
             this.AutoencoderVideoSelectedImageBttn.Click += new System.EventHandler(this.AutoencoderVideoSelectedImageBttn_Click);
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 207);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(72, 13);
-            this.label1.TabIndex = 7;
-            this.label1.Text = "Learning rate:";
-            // 
-            // LearningRateRichTxtBox
-            // 
-            this.LearningRateRichTxtBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.LearningRateRichTxtBox.DetectUrls = false;
-            this.LearningRateRichTxtBox.Location = new System.Drawing.Point(15, 223);
-            this.LearningRateRichTxtBox.Multiline = false;
-            this.LearningRateRichTxtBox.Name = "LearningRateRichTxtBox";
-            this.LearningRateRichTxtBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-            this.LearningRateRichTxtBox.Size = new System.Drawing.Size(135, 21);
-            this.LearningRateRichTxtBox.TabIndex = 8;
-            this.LearningRateRichTxtBox.Text = "0,1";
-            this.LearningRateRichTxtBox.TextChanged += new System.EventHandler(this.LearningRateRichTxtBox_TextChanged);
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(15, 250);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 9;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
-            this.ClientSize = new System.Drawing.Size(598, 416);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.LearningRateRichTxtBox);
-            this.Controls.Add(this.label1);
+            this.ClientSize = new System.Drawing.Size(598, 190);
             this.Controls.Add(this.flowLayoutPanel1);
             this.Controls.Add(this.Display);
-            this.Controls.Add(this.comboBox);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
@@ -276,19 +186,12 @@
         private System.Windows.Forms.ToolStripMenuItem saveToFolderToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem loadToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem loadFromFileToolStripMenuItem;
-        private System.Windows.Forms.ComboBox comboBox;
         private System.Windows.Forms.PictureBox Display;
         private System.Windows.Forms.Button ShowAutoencoderImageBttn;
-        private System.Windows.Forms.Button TrainAutoencoder1NForAllFoldersBttn;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button AutoencoderVideoSelectedImageBttn;
-        private System.Windows.Forms.Button TrainAutoEnconderForImageFolderBttn;
-        private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.RichTextBox LearningRateRichTxtBox;
-        private System.Windows.Forms.Button button1;
     }
 }
 

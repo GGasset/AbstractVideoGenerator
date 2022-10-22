@@ -35,6 +35,8 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -50,6 +52,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AbstractVideoGenerator.csproj">
+      <Project>{dcbc6bf9-5f6f-4a5e-a827-28bb078e68d7}</Project>
+      <Name>AbstractVideoGenerator</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Functionality\Functionality.csproj">
       <Project>{3f361cfe-e6b4-405a-a501-0987cd171426}</Project>
       <Name>Functionality</Name>
