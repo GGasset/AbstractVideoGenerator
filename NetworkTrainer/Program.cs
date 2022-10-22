@@ -22,7 +22,7 @@ namespace NetworkTrainer
         {
             while (true)
             {
-                if (MessageBox.Show("Do you wish to train a network???") == DialogResult.Yes)
+                if (MessageBox.Show("Do you wish to train a network???", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
                     if (MessageBox.Show($"The current network output square side resolution is {NetworkOutputSquareSideResolution}, do you wish to change it???", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
                     {
