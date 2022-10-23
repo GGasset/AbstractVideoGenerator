@@ -73,7 +73,6 @@ namespace NetworkTrainer
                         }
                     } while (MessageBox.Show("Do you wish to add one more folder for training", "", MessageBoxButtons.YesNo) == DialogResult.Yes);
 
-                    Console.WriteLine("Started training!");
                     NN autoencoder = null;
                     switch (inputedOption)
                     {
@@ -129,6 +128,8 @@ namespace NetworkTrainer
 
             Console.WriteLine("Making modifications of the image and parsing all images...");
             List<double[]> imagesData = new List<double[]>();
+            int i = 1;
+            Console.WriteLine($"0/{paths.Count}");
             foreach (var imagePath in paths)
             {
                 Bitmap original = new Bitmap(imagePath);
@@ -138,6 +139,9 @@ namespace NetworkTrainer
 
                 original.Dispose();
                 reduced.Dispose();
+                if (i % 50 == 0)
+                    Console.WriteLine($"{i}/{paths.Count}");
+                i++;
             }
             Console.WriteLine("Finished making modifications of the image and parsing all images!");
 
