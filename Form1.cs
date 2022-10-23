@@ -14,19 +14,6 @@ namespace AbstractVideoGenerator
 {
     public partial class MainForm : Form
     {
-        private int networkResolution;
-        private int networkResolitionDataSize;
-
-        private int[] autoEncoderShape,
-            generativeShape,
-            discriminatoryShape;
-
-        private int autoencoderCompressedLayer;
-
-        private NeuronHolder.NeuronTypes[] autoEncoderLayers,
-            generativeLayers,
-            discriminatoryLayers;
-
         private NN autoEncoder, discriminative, generative;
 
         private List<string[]> imagePaths;
@@ -126,7 +113,13 @@ namespace AbstractVideoGenerator
             while (openFileDialog.ShowDialog() != DialogResult.OK) ;
 
             var filePath = openFileDialog.FileName;
-            var text = File.ReadAllText(filePath);
+
+            string text = string.Empty;
+            using (StreamReader reader = new StreamReader(filePath))
+            {
+                text = reader.ReadToEnd();
+            }
+
             string[] headerContent = text.Split(new string[] { "\nJGG\n" }, StringSplitOptions.None);
             string header = headerContent[0];
             string content = headerContent[1];
@@ -246,7 +239,7 @@ namespace AbstractVideoGenerator
             Display.Image = new Bitmap(bmp, Display.Size);
 
             double[] X = BitmapToDoubleArray(downscaledBmp);
-            compressedVideoImage = autoEncoder.ExecuteUpToLayer(X, autoencoderCompressedLayer);
+            compressedVideoImage = autoEncoder.ExecuteUpToLayer(X, GetAutoencoderMostCompressedLayer());
 
             bmp.Dispose();
             downscaledBmp.Dispose();
@@ -257,7 +250,7 @@ namespace AbstractVideoGenerator
 
         private void ShowAlteredImage(object sender, EventArgs e)
         {
-            var nOutput = autoEncoder.ExecuteFromLayer(autoencoderCompressedLayer, compressedVideoImage);
+            var nOutput = autoEncoder.ExecuteFromLayer(GetAutoencoderMostCompressedLayer(), compressedVideoImage);
             int networkOutputSquareSideSize = GetAutoencoderOutputSquareSideSize();
             Bitmap outputNetworkImage = DoubleArrayToBitmap(nOutput, networkOutputSquareSideSize, networkOutputSquareSideSize);
             Bitmap upscaledBmp = new Bitmap(outputNetworkImage, Display.Size);
@@ -291,7 +284,7 @@ namespace AbstractVideoGenerator
 
         private int GetAutoencoderOutputSquareSideSize()
         {
-            int output = autoEncoder.Shape[0];
+            int output = autoEncoder.Shape[autoEncoder.Shape.Length - 1];
             output /= 3;
             output = Convert.ToInt32(Math.Sqrt(output));
             return output;
@@ -299,10 +292,11 @@ namespace AbstractVideoGenerator
 
         private int GetAutoencoderMostCompressedLayer()
         {
-            autoencoderCompressedLayer = -1;
+            int autoencoderCompressedLayer = -1;
+            int[] autoencoderShape = autoEncoder.Shape;
             int minLayerLength = int.MaxValue;
-            for (int i = 1; i < autoEncoderShape.Length; i++)
-                if (autoEncoderShape[i] < minLayerLength)
+            for (int i = 1; i < autoEncoder.LayerCount; i++)
+                if (autoencoderShape[i] < minLayerLength)
                     autoencoderCompressedLayer = i - 1;
             return autoencoderCompressedLayer;
         }
