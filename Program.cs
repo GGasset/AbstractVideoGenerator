@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NeatNetwork;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,9 +20,14 @@ namespace AbstractVideoGenerator
         [STAThread]
         static void RunApp()
         {
+            Application.Run(new MainForm());
+        }
+
+        [STAThread]
+        public static void PrepareApp()
+        {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
         }
     }
 }

@@ -9,17 +9,12 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using static Functionality.ImageProcessing;
 using static Functionality.PathGetter;
+using static Functionality.NetworkHolder;
 
 namespace AbstractVideoGenerator
 {
     public partial class MainForm : Form
     {
-        private NN autoEncoder, discriminative, generative;
-
-        private List<string[]> imagePaths;
-        private List<string> folderNames;
-        private List<string> shuffledImages;
-
         private Timer autoencoderVideoTimer;
         private double[] compressedVideoImage;
 
@@ -29,11 +24,11 @@ namespace AbstractVideoGenerator
         {
             InitializeComponent();
         }
-
         private void MainForm_Load(object sender, EventArgs e)
         {
         }
 
+        /*
         #region Save Load (IO)
 
         private void saveToFolderToolStripMenuItem_Click(object sender, EventArgs e)
@@ -172,6 +167,8 @@ namespace AbstractVideoGenerator
 
         #endregion Save Load (IO)
 
+        */
+
         #region Auto encoder execution
 
         private void ShowAutoencoderImageBttn_Click(object sender, EventArgs e)
@@ -179,32 +176,24 @@ namespace AbstractVideoGenerator
             if (autoencoderVideoTimer != null)
                 autoencoderVideoTimer.Stop();
 
-            if (autoEncoder == null)
+            if (autoencoder == null)
             {
                 MessageBox.Show("First initialize autoencoder network");
                 return;
             }
 
             Bitmap originalImage;
-            if (shuffledImages == null)
-            {
-                string imagePath = GetImagePath();
-                if (imagePath == null)
-                    return;
+            string imagePath = GetImagePath();
+            if (imagePath == null)
+                return;
 
-                originalImage = new Bitmap(imagePath);
-            }
-            else
-            {
-                originalImage = new Bitmap(shuffledImages[new Random(DateTime.Now.Millisecond + rI++).Next(shuffledImages.Count)]);
-            }
-
+            originalImage = new Bitmap(imagePath);
             int networkOutputSquareSideSize = GetAutoencoderOutputSquareSideSize();
 
             Bitmap reducedImage = new Bitmap(originalImage, new Size(networkOutputSquareSideSize, networkOutputSquareSideSize));
 
             double[] X = BitmapToDoubleArray(reducedImage);
-            double[] reconstructedImage = autoEncoder.Execute(X);
+            double[] reconstructedImage = autoencoder.Execute(X);
 
             Bitmap reconstructedBitmap = DoubleArrayToBitmap(reconstructedImage, networkOutputSquareSideSize, networkOutputSquareSideSize);
             Bitmap augmentedBitmap = new Bitmap(reconstructedBitmap, Display.Size);
@@ -217,7 +206,7 @@ namespace AbstractVideoGenerator
 
         private void AutoencoderVideoSelectedImageBttn_Click(object sender, EventArgs e)
         {
-            if (autoEncoder == null)
+            if (autoencoder == null)
             {
                 MessageBox.Show("First you need to train or load an autoencoder network", "ERROR");
                 return;
@@ -239,7 +228,7 @@ namespace AbstractVideoGenerator
             Display.Image = new Bitmap(bmp, Display.Size);
 
             double[] X = BitmapToDoubleArray(downscaledBmp);
-            compressedVideoImage = autoEncoder.ExecuteUpToLayer(X, GetAutoencoderMostCompressedLayer());
+            compressedVideoImage = autoencoder.ExecuteUpToLayer(X, GetAutoencoderMostCompressedLayer());
 
             bmp.Dispose();
             downscaledBmp.Dispose();
@@ -250,7 +239,7 @@ namespace AbstractVideoGenerator
 
         private void ShowAlteredImage(object sender, EventArgs e)
         {
-            var nOutput = autoEncoder.ExecuteFromLayer(GetAutoencoderMostCompressedLayer(), compressedVideoImage);
+            var nOutput = autoencoder.ExecuteFromLayer(GetAutoencoderMostCompressedLayer(), compressedVideoImage);
             int networkOutputSquareSideSize = GetAutoencoderOutputSquareSideSize();
             Bitmap outputNetworkImage = DoubleArrayToBitmap(nOutput, networkOutputSquareSideSize, networkOutputSquareSideSize);
             Bitmap upscaledBmp = new Bitmap(outputNetworkImage, Display.Size);
@@ -284,7 +273,7 @@ namespace AbstractVideoGenerator
 
         private int GetAutoencoderOutputSquareSideSize()
         {
-            int output = autoEncoder.Shape[autoEncoder.Shape.Length - 1];
+            int output = autoencoder.Shape[autoencoder.Shape.Length - 1];
             output /= 3;
             output = Convert.ToInt32(Math.Sqrt(output));
             return output;
@@ -293,9 +282,9 @@ namespace AbstractVideoGenerator
         private int GetAutoencoderMostCompressedLayer()
         {
             int autoencoderCompressedLayer = -1;
-            int[] autoencoderShape = autoEncoder.Shape;
+            int[] autoencoderShape = autoencoder.Shape;
             int minLayerLength = int.MaxValue;
-            for (int i = 1; i < autoEncoder.LayerCount; i++)
+            for (int i = 1; i < autoencoder.LayerCount; i++)
                 if (autoencoderShape[i] < minLayerLength)
                     autoencoderCompressedLayer = i - 1;
             return autoencoderCompressedLayer;
