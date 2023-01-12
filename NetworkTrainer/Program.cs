@@ -16,9 +16,7 @@ namespace NetworkTrainer
 {
     public class Program
     {
-        public static int NetworkOutputSquareSideResolution = 50;
-
-        static NN autoencoderHolder, generativeHolder, discriminativeHolder;
+        public static int NetworkOutputSquareSideResolution = 24;
 
         [STAThread]
         public static void Main(string[] args)
@@ -148,7 +146,16 @@ namespace NetworkTrainer
             Console.WriteLine("Finished making modifications of the image and parsing all images!");
 
             Console.WriteLine("Training network...");
-            var testCost = output.SupervisedTrain(imagesData, imagesData, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate, 0.05, 10, false);
+
+            double maximumTestCost = .1;
+            double testCost = 0;
+            int counter = 0;
+            while (testCost <= maximumTestCost)
+            {
+                testCost = output.SupervisedTrain(imagesData, imagesData, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate, 0.05, 10, true);
+                counter++;
+                Console.WriteLine($"Finished iteration {counter} with a test cost of {testCost}");
+            }
             watch.Stop();
 
             if (showResultMessageBox)
