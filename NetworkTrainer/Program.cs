@@ -269,16 +269,16 @@ namespace NetworkTrainer
                 try
                 {
                     string numberStr = Console.ReadLine();
-                    if (numberStr.StartsWith("."))
+                    if (numberStr.StartsWith(","))
                         numberStr = "0" + numberStr;
-                    if (numberStr.Split('.').Length > 2)
+                    if (numberStr.Split(',').Length > 2)
                         throw new Exception();
                     double output = Convert.ToDouble(numberStr);
                     return output;
                 }
                 catch (Exception)
                 {
-                    Console.WriteLine("Didn't match specified format, please enter a decimal number in this format: 0.5 - .5 - 1");
+                    Console.WriteLine("Didn't match specified format, please enter a decimal number in this format: 0,5 - ,5 - 1");
                 }
             }
         }
