@@ -54,7 +54,7 @@ namespace NetworkTrainer
                     }
                     catch (Exception)
                     {
-                        Console.WriteLine("Please input an integer number");
+                        Console.WriteLine("Please input an accepted integer number");
                         successfullySelectedOption = false;
                     }
                 } while (!successfullySelectedOption);
@@ -148,9 +148,9 @@ namespace NetworkTrainer
             Console.WriteLine("Training network...");
 
             double maximumTestCost = .1;
-            double testCost = 0;
+            double testCost = 10E30;
             int counter = 0;
-            while (testCost <= maximumTestCost)
+            while (testCost >= maximumTestCost)
             {
                 testCost = output.SupervisedTrain(imagesData, imagesData, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate, 0.05, 10, true);
                 counter++;
@@ -159,7 +159,7 @@ namespace NetworkTrainer
             watch.Stop();
 
             if (showResultMessageBox)
-                MessageBox.Show($"Training of a new autoencoder with {paths.Count} images and {imagesData.Count} images including modificated images in {watch.Elapsed.TotalMinutes} minutes with a test cost of {testCost}",
+                MessageBox.Show($"Training of a new autoencoder with {paths.Count} images and {imagesData.Count} images including modificated images in {watch.Elapsed.TotalMinutes} minutes with a test cost of {testCost} after {counter} iterations",
                     "Traning info", MessageBoxButtons.OK);
 
             return output;
