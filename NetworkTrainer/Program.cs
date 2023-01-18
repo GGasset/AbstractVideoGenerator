@@ -59,7 +59,7 @@ namespace NetworkTrainer
                     }
                 } while (!successfullySelectedOption);
 
-                Console.WriteLine("Enter learning rate value. The format must be one of these: 0.5 - .5 - 1");
+                Console.WriteLine("Enter learning rate value. The format must be one of these: 0,5 - ,5 - 1");
                 double learningRate = GetInputDouble();
 
                 List<string> paths = new List<string>();
@@ -120,7 +120,7 @@ namespace NetworkTrainer
 
         private static NN TrainAutoEncoderOnImages(List<string> paths, int[] autoEncoderShape, double learningRate, bool showResultMessageBox)
         {
-            Console.Write("Test cost for termination: ");
+            Console.Write("Enter maximum test cost for termination. Value must be in this format: 0,15 - ,15 - 0 ");
             double maximumTestCost = GetInputDouble();
             Console.WriteLine();
             Console.Write("Max epochs: ");
