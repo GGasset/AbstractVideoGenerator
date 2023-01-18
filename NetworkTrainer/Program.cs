@@ -120,6 +120,13 @@ namespace NetworkTrainer
 
         private static NN TrainAutoEncoderOnImages(List<string> paths, int[] autoEncoderShape, double learningRate, bool showResultMessageBox)
         {
+            Console.Write("Test cost for termination: ");
+            double maximumTestCost = GetInputDouble();
+            Console.WriteLine();
+            Console.Write("Max epochs: ");
+            int maxEpochs = GetInputInt();
+            Console.WriteLine();
+
             var watch = Stopwatch.StartNew();
 
             Console.WriteLine("Creating network...");
@@ -147,24 +154,18 @@ namespace NetworkTrainer
 
             Console.WriteLine("Training network...");
 
-            Console.Write("Test cost for termination: ");
-            double maximumTestCost = GetInputDouble();
-            Console.WriteLine();
-            Console.Write("Max epochs: ");
-            int maxEpochs = GetInputInt();
-            Console.WriteLine();
             double testCost = 10E30;
-            int counter = 0;
-            while (testCost >= maximumTestCost)
+            int epochCounter = 0;
+            while (testCost >= maximumTestCost && epochCounter > maxEpochs)
             {
                 testCost = output.SupervisedTrain(imagesData, imagesData, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate, 0.05, 10, true);
-                counter++;
-                Console.WriteLine($"Finished iteration {counter} with a test cost of {testCost}");
+                epochCounter++;
+                Console.WriteLine($"Finished iteration {epochCounter} with a test cost of {testCost}");
             }
             watch.Stop();
 
             if (showResultMessageBox)
-                MessageBox.Show($"Training of a new autoencoder with {paths.Count} images and {imagesData.Count} images including modificated images in {watch.Elapsed.TotalMinutes} minutes with a test cost of {testCost} after {counter} iterations",
+                MessageBox.Show($"Training of a new autoencoder with {paths.Count} images and {imagesData.Count} images including modificated images in {watch.Elapsed.TotalMinutes} minutes with a test cost of {testCost} after {epochCounter} iterations",
                     "Traning info", MessageBoxButtons.OK);
 
             return output;
