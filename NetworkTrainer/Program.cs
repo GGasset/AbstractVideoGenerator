@@ -120,7 +120,7 @@ namespace NetworkTrainer
 
         private static NN TrainAutoEncoderOnImages(List<string> paths, int[] autoEncoderShape, double learningRate, bool showResultMessageBox)
         {
-            Console.Write("Enter maximum test cost for termination. Value must be in this format: 0,15 - ,15 - 0 ");
+            Console.WriteLine("Enter maximum test cost for termination. Value must be in this format: 0,15 - ,15 - 0");
             double maximumTestCost = GetInputDouble();
             Console.WriteLine();
             Console.Write("Max epochs: ");
