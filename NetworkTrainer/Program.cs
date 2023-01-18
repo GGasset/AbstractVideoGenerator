@@ -147,7 +147,12 @@ namespace NetworkTrainer
 
             Console.WriteLine("Training network...");
 
-            double maximumTestCost = .1;
+            Console.Write("Test cost for termination: ");
+            double maximumTestCost = GetInputDouble();
+            Console.WriteLine();
+            Console.Write("Max epochs: ");
+            int maxEpochs = GetInputInt();
+            Console.WriteLine();
             double testCost = 10E30;
             int counter = 0;
             while (testCost >= maximumTestCost)
