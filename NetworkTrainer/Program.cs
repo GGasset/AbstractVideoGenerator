@@ -156,7 +156,7 @@ namespace NetworkTrainer
 
             double testCost = 10E30;
             int epochCounter = 0;
-            while (testCost >= maximumTestCost && epochCounter > maxEpochs)
+            while (testCost >= maximumTestCost && epochCounter < maxEpochs)
             {
                 testCost = output.SupervisedTrain(imagesData, imagesData, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate, 0.05, 10, true);
                 epochCounter++;
