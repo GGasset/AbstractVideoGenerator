@@ -75,8 +75,10 @@ namespace NetworkTrainer
 
                 switch (inputedOption)
                 {
+                    case 0:
+                        break;
                     case 1:
-                        autoencoder = TrainAutoEncoderOnImages(paths, autoEncoderShape, learningRate, true);
+                        TrainAutoEncoderOnImages(paths, autoEncoderShape, learningRate);
                         break;
                 }
 
@@ -118,7 +120,12 @@ namespace NetworkTrainer
             RunNetworkExecutionInterface();
         }
 
-        private static NN TrainAutoEncoderOnImages(List<string> paths, int[] autoEncoderShape, double learningRate, bool showResultMessageBox)
+        private static void TrainGanOnImages(List<string> paths, int[] generativeShape, int[] discriminativeShape, double learningRate)
+        {
+            List<double[]> images = ExpandImages(paths);
+        }
+
+        private static void TrainAutoEncoderOnImages(List<string> paths, int[] autoEncoderShape, double learningRate)
         {
             Console.WriteLine("Enter maximum test cost for termination. Value must be in this format: 0,15 - ,15 - 0");
             double maximumTestCost = GetInputDouble();
@@ -133,24 +140,7 @@ namespace NetworkTrainer
             NN output = new NN(autoEncoderShape, NeatNetwork.Libraries.Activation.ActivationFunctions.Sigmoid);
             Console.WriteLine("Network created!");
 
-            Console.WriteLine("Making modifications of the image and parsing all images...");
-            List<double[]> imagesData = new List<double[]>();
-            int i = 1;
-            Console.WriteLine($"0/{paths.Count}");
-            foreach (var imagePath in paths)
-            {
-                Bitmap original = new Bitmap(imagePath);
-                Bitmap reduced = new Bitmap(original, new Size(NetworkOutputSquareSideResolution, NetworkOutputSquareSideResolution));
-
-                imagesData.AddRange(GetImageVariations(reduced));
-
-                original.Dispose();
-                reduced.Dispose();
-                if (i % 50 == 0)
-                    Console.WriteLine($"{i}/{paths.Count}");
-                i++;
-            }
-            Console.WriteLine("Finished making modifications of the image and parsing all images!");
+            List<double[]> imagesData = ExpandImages(paths);
 
             Console.WriteLine("Training network...");
 
@@ -164,11 +154,34 @@ namespace NetworkTrainer
             }
             watch.Stop();
 
-            if (showResultMessageBox)
-                MessageBox.Show($"Training of a new autoencoder with {paths.Count} images and {imagesData.Count} images including modificated images in {watch.Elapsed.TotalMinutes} minutes with a test cost of {testCost} after {epochCounter} iterations",
-                    "Traning info", MessageBoxButtons.OK);
+            
+            MessageBox.Show($"Training of a new autoencoder with {paths.Count} images and {imagesData.Count} images including modificated images in {watch.Elapsed.TotalMinutes} minutes with a test cost of {testCost} after {epochCounter} iterations",
+                "Traning info", MessageBoxButtons.OK);
 
-            return output;
+            autoencoder = output;
+        }
+
+        private static List<double[]> ExpandImages(List<string> imagePaths)
+        {
+            Console.WriteLine("Making modifications of the image and parsing all images...");
+            List<double[]> imagesData = new List<double[]>();
+            Console.WriteLine($"0/{imagePaths.Count}");
+            int i = 1;
+            foreach (var imagePath in imagePaths)
+            {
+                Bitmap original = new Bitmap(imagePath);
+                Bitmap reduced = new Bitmap(original, new Size(NetworkOutputSquareSideResolution, NetworkOutputSquareSideResolution));
+
+                imagesData.AddRange(GetImageVariations(reduced));
+
+                original.Dispose();
+                reduced.Dispose();
+                if (i % 50 == 0)
+                    Console.WriteLine($"{i}/{imagePaths.Count}");
+                i++;
+            }
+            Console.WriteLine("Finished making modifications of the image and parsing all images!");
+            return imagesData;
         }
 
         private static void LoadNN()
