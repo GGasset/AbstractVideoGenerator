@@ -182,6 +182,7 @@ namespace NetworkTrainer
                 for (int j = 0; j < (int)Math.Ceiling((double)imagesPerEpoch / batchLength); j++)
                 {
                     discriminative.SupervisedLearningBatch(images, discriminativeRealY, batchLength, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate);
+                    Console.WriteLine($"{j * batchLength}/{imagesPerEpoch}");
                 }
 
                 Console.WriteLine("Creating Gaussian noise images... " + i);
@@ -205,6 +206,7 @@ namespace NetworkTrainer
                         return discriminativeOutput * 100;
                     }
                 }
+                Console.WriteLine("Generative upgrading itself to another level..");
                 reinforcementGenerative.TerminateAgent();
 
                 Console.WriteLine("Training Discriminative on Fake data...");
