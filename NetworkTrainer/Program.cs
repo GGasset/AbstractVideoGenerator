@@ -76,11 +76,11 @@ namespace NetworkTrainer
 
                 switch (inputedOption)
                 {
-                    case 0:
-                        TrainGanOnImages(paths, generativeShape, discriminativeShape, learningRate);
-                        break;
                     case 1:
                         TrainAutoEncoderOnImages(paths, autoEncoderShape, learningRate);
+                        break;
+                    case 2:
+                        TrainGanOnImages(paths, generativeShape, discriminativeShape, learningRate);
                         break;
                 }
 
