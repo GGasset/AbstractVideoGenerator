@@ -196,6 +196,10 @@ namespace NetworkTrainer
                     double discriminativeActivation = discriminative.Execute(generatedImage)[0];
                     reinforcementGenerative.SetLastReward(GetReward(discriminativeActivation), false);
 
+                    if (j % 10 == 0)
+                    {
+                        Console.WriteLine($"{j}/{imagesPerEpoch}");
+                    }
                     double GetReward(double discriminativeOutput)
                     {
                         return discriminativeOutput * 100;
