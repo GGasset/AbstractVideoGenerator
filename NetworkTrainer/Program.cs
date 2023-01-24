@@ -37,7 +37,8 @@ namespace NetworkTrainer
 
                 int[] autoEncoderShape = new int[] { resolutionDataSize, 500, 150, 27, 150, 500, resolutionDataSize };
 
-                int[] generativeShape = new int[] { resolutionDataSize, 500, 150, 100, 50, 50, 250, 300, 500, resolutionDataSize };
+                int GanInputLength = 25;
+                int[] generativeShape = new int[] { GanInputLength, 50, 75, 100, 150, 200, 250, 500, 1000, resolutionDataSize };
 
                 int[] discriminativeShape = new int[] { resolutionDataSize, 500, 100, 20, 2, 1 };
 
@@ -76,6 +77,7 @@ namespace NetworkTrainer
                 switch (inputedOption)
                 {
                     case 0:
+                        TrainGansOnImages(paths)
                         break;
                     case 1:
                         TrainAutoEncoderOnImages(paths, autoEncoderShape, learningRate);
@@ -117,12 +119,69 @@ namespace NetworkTrainer
             else
                 LoadNN();
 
-            RunNetworkExecutionInterface();
+            RunNetworkExecutionUI();
         }
 
         private static void TrainGanOnImages(List<string> paths, int[] generativeShape, int[] discriminativeShape, double learningRate)
         {
+            Console.WriteLine("How many training iterations (Epochs) you wish to make until training termination?");
+            int epochs = GetInputInt();
+
+            Console.WriteLine("On how many images does it needs to be trained at each iteration (epoch)?");
+            int imagesPerEpoch = GetInputInt();
+
+            Console.WriteLine("Creating Generative network...");
+            ReinforcementLearningNN reinforcementGenerative = new ReinforcementLearningNN(new NN(generativeShape, NeatNetwork.Libraries.Activation.ActivationFunctions.Sigmoid), learningRate);
+            Console.WriteLine("Creating Discriminative network...");
+            discriminative = new NN(discriminativeShape, NeatNetwork.Libraries.Activation.ActivationFunctions.Sigmoid);
+            Console.WriteLine("Networks created!");
+
             List<double[]> images = ExpandImages(paths);
+
+            Console.WriteLine("Generating labels...");
+            List<double[]> discriminativeRealY = new List<double[]>();
+            for (int i = 0; i < paths.Count; i++)
+                discriminativeRealY.Add(new double[] { 1 });
+
+            List<double[]> discriminativeFakeY = new List<double[]>();
+            for (int i = 0; i < imagesPerEpoch; i++)
+                discriminativeFakeY.Add(new double[] { 0 });
+
+            Console.WriteLine("Labels generated.");
+
+            Random r = new Random(DateTime.Now.Millisecond);
+            int batchLength = 6;
+            for (int i = 0; i < epochs; i++)
+            {
+                Console.WriteLine("Training Discriminative on Real data... " + i);
+                for (int j = 0; j < (int)Math.Ceiling((double)imagesPerEpoch / batchLength); j++)
+                {
+                    discriminative.SupervisedLearningBatch(images, discriminativeRealY, batchLength, NeatNetwork.Libraries.Cost.CostFunctions.BinaryCrossEntropy, learningRate);
+                }
+
+                Console.WriteLine("Creating Gaussian noise images... " + i);
+                List<double[]> gaussianNoiseImages = GenerateGaussianNoiseImages(0.5, .1, imagesPerEpoch, discriminative.Shape[0]);
+
+                Console.WriteLine("Generative Generating images and Discriminative still discriminating... " + i);
+                List<double[]> generatedImages = new List<double[]>();
+                for (int j = 0; j < imagesPerEpoch; j++)
+                {
+                    double[] generatedImage;
+                    generatedImages.Add(generatedImage = reinforcementGenerative.Execute(gaussianNoiseImages[j]));
+                    double discriminativeActivation = discriminative.Execute(generatedImage)[0];
+                    reinforcementGenerative.SetLastReward(GetReward(discriminativeActivation), false);
+
+                    double GetReward(double discriminativeOutput)
+                    {
+                        return discriminativeOutput * 100;
+                    }
+                }
+
+                Console.WriteLine("Training Discriminative on Fake data...");
+                discriminative.SupervisedTrain(generatedImages, discriminativeFakeY, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate, 0, batchLength, false);
+            }
+
+            generative = reinforcementGenerative.n;
         }
 
         private static void TrainAutoEncoderOnImages(List<string> paths, int[] autoEncoderShape, double learningRate)
@@ -163,7 +222,7 @@ namespace NetworkTrainer
 
         private static List<double[]> ExpandImages(List<string> imagePaths)
         {
-            Console.WriteLine("Making modifications of the image and parsing all images...");
+            Console.WriteLine("Expanding and parsing image data...");
             List<double[]> imagesData = new List<double[]>();
             Console.WriteLine($"0/{imagePaths.Count}");
             int i = 1;
@@ -180,7 +239,7 @@ namespace NetworkTrainer
                     Console.WriteLine($"{i}/{imagePaths.Count}");
                 i++;
             }
-            Console.WriteLine("Finished making modifications of the image and parsing all images!");
+            Console.WriteLine("Finished expanding and parsing image data!");
             return imagesData;
         }
 
@@ -297,9 +356,8 @@ namespace NetworkTrainer
             }
         }
 
-        private static void RunNetworkExecutionInterface(/*NN autoencoder, NN generative, NN discriminative*/)
+        private static void RunNetworkExecutionUI()
         {
-            /*(NetworkHolder.autoencoder, NetworkHolder.generative, NetworkHolder.discriminative) = (autoencoder, generative, discriminative);*/
             AbstractVideoGenerator.Program.Main();
         }
     }
