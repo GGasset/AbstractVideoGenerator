@@ -165,7 +165,7 @@ namespace NetworkTrainer
 
             Console.WriteLine("Generating labels...");
             List<double[]> discriminativeRealY = new List<double[]>();
-            for (int i = 0; i < paths.Count; i++)
+            for (int i = 0; i < images.Count; i++)
                 discriminativeRealY.Add(new double[] { 1 });
 
             List<double[]> discriminativeFakeY = new List<double[]>();
