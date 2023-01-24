@@ -1,5 +1,4 @@
-﻿using MathNet.Numerics.Distributions;
-using NeatNetwork;
+﻿using NeatNetwork;
 using NeatNetwork.NetworkFiles;
 using System;
 using System.Collections.Generic;
@@ -291,18 +290,5 @@ namespace AbstractVideoGenerator
         }
 
         #endregion functionality
-
-        #region network things
-
-        public double[] GetGaussianNoise(double mean, double standarDeviation, int arrayLength)
-        {
-            double[] output = new double[arrayLength];
-            Normal normalDistribution = new Normal(mean, standarDeviation);
-            for (int i = 0; i < arrayLength; i++)
-                output[i] = normalDistribution.Sample();
-            return output;
-        }
-
-        #endregion network things
     }
 }

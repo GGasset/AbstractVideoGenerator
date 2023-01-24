@@ -4,11 +4,38 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MathNet.Numerics.Distributions;
 
 namespace Functionality
 {
     public static class ImageProcessing
     {
+        public static List<double[]> GenerateGaussianNoiseImages(double mean, double std, int imageCount, int imageResolution)
+        {
+            List<double[]> images = new List<double[]>();
+            Task<double[]>[] tasks = new Task<double[]>[imageCount];
+            for (int i = 0; i < imageCount; i++)
+            {
+                tasks[i] = Task.Run(() => GetGaussianNoise(mean, std, imageResolution));
+            }
+
+            for (int i = 0; i < imageCount; i++)
+            {
+                tasks[i].Wait();
+                images.Add(tasks[i].Result);
+            }
+            return images;
+        }
+
+        public static double[] GetGaussianNoise(double mean, double std, int arrayLength)
+        {
+            double[] output = new double[arrayLength];
+            Normal normalDistribution = new Normal(mean, std);
+            for (int i = 0; i < arrayLength; i++)
+                output[i] = normalDistribution.Sample();
+            return output;
+        }
+
         public static double[] BitmapToDoubleArray(Bitmap bitmap, double dataDividend = 255)
         {
             int imageSize = bitmap.Height * bitmap.Width;
@@ -139,5 +166,6 @@ namespace Functionality
 
             return imagesData;
         }
+
     }
 }
