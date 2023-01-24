@@ -181,7 +181,7 @@ namespace NetworkTrainer
                 Console.WriteLine("Training Discriminative on Real data... " + i);
                 for (int j = 0; j < (int)Math.Ceiling((double)imagesPerEpoch / batchLength); j++)
                 {
-                    discriminative.SupervisedLearningBatch(images, discriminativeRealY, batchLength, NeatNetwork.Libraries.Cost.CostFunctions.BinaryCrossEntropy, learningRate);
+                    discriminative.SupervisedLearningBatch(images, discriminativeRealY, batchLength, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate);
                 }
 
                 Console.WriteLine("Creating Gaussian noise images... " + i);
