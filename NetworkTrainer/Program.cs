@@ -201,6 +201,7 @@ namespace NetworkTrainer
                         return discriminativeOutput * 100;
                     }
                 }
+                reinforcementGenerative.TerminateAgent();
 
                 Console.WriteLine("Training Discriminative on Fake data...");
                 discriminative.SupervisedTrain(generatedImages, discriminativeFakeY, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate, 0, batchLength, false);
