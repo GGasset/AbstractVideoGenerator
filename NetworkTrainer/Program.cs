@@ -206,10 +206,10 @@ namespace NetworkTrainer
                         return discriminativeOutput * 100;
                     }
                 }
-                Console.WriteLine("Generative upgrading itself to another level..");
+                Console.WriteLine("Generative upgrading itself to another level.. " + i);
                 reinforcementGenerative.TerminateAgent();
 
-                Console.WriteLine("Training Discriminative on Fake data...");
+                Console.WriteLine("Training Discriminative on Fake data... " + i);
                 discriminative.SupervisedTrain(generatedImages, discriminativeFakeY, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate, 0, batchLength, false);
             }
 
