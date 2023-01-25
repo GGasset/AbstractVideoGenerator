@@ -34,6 +34,7 @@
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.AutoencoderVideoSelectedImageBttn = new System.Windows.Forms.Button();
+            this.LoadedNetworksLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.Display)).BeginInit();
             this.flowLayoutPanel1.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -80,7 +81,7 @@
             this.flowLayoutPanel1.Controls.Add(this.groupBox1);
             this.flowLayoutPanel1.Location = new System.Drawing.Point(159, 12);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(437, 150);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(437, 275);
             this.flowLayoutPanel1.TabIndex = 6;
             // 
             // groupBox1
@@ -108,12 +109,23 @@
             this.AutoencoderVideoSelectedImageBttn.UseVisualStyleBackColor = true;
             this.AutoencoderVideoSelectedImageBttn.Click += new System.EventHandler(this.AutoencoderVideoSelectedImageBttn_Click);
             // 
+            // LoadedNetworksLabel
+            // 
+            this.LoadedNetworksLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.LoadedNetworksLabel.AutoSize = true;
+            this.LoadedNetworksLabel.Location = new System.Drawing.Point(12, 294);
+            this.LoadedNetworksLabel.Name = "LoadedNetworksLabel";
+            this.LoadedNetworksLabel.Size = new System.Drawing.Size(95, 13);
+            this.LoadedNetworksLabel.TabIndex = 7;
+            this.LoadedNetworksLabel.Text = "Loaded networks: ";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
-            this.ClientSize = new System.Drawing.Size(598, 174);
+            this.ClientSize = new System.Drawing.Size(598, 316);
+            this.Controls.Add(this.LoadedNetworksLabel);
             this.Controls.Add(this.flowLayoutPanel1);
             this.Controls.Add(this.Display);
             this.Name = "MainForm";
@@ -124,6 +136,7 @@
             this.flowLayoutPanel1.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -138,6 +151,7 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button AutoencoderVideoSelectedImageBttn;
+        private System.Windows.Forms.Label LoadedNetworksLabel;
     }
 }
 

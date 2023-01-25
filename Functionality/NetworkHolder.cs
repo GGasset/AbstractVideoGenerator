@@ -9,6 +9,6 @@ namespace Functionality
 {
     public static class NetworkHolder
     {
-        public static NN autoencoder, generative, discriminative;
+        public static NN autoencoder, generative, discriminative, reverseDiffusor;
     }
 }
