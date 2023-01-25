@@ -27,6 +27,15 @@ namespace Functionality
             return images;
         }
 
+        public static double[] ApplyGaussianNoiseToImageData(double[] original, double mean, double std)
+        {
+            double[] output = GetGaussianNoise(mean, std, original.Length);
+            for (int i = 0; i < original.Length; i++)
+                output[i] = Math.Max(0, Math.Min(1, output[i] + original[i]));
+
+            return output;
+        }
+
         public static double[] GetGaussianNoise(double mean, double std, int arrayLength)
         {
             double[] output = new double[arrayLength];
