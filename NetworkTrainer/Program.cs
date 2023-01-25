@@ -197,6 +197,7 @@ namespace NetworkTrainer
 
             Random r = new Random(DateTime.Now.Millisecond);
             var watch = new Stopwatch();
+            int totalSeconds = 0;
             int batchLength = 6;
             for (int i = 0; i < epochs; i++)
             {
@@ -238,7 +239,8 @@ namespace NetworkTrainer
                 discriminative.SupervisedTrain(generatedImages, discriminativeFakeY, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate, 0, batchLength, false);
 
                 watch.Stop();
-                var timeWhenFinished = DateTime.Now.AddSeconds(watch.Elapsed.TotalSeconds * (epochs - i));
+                totalSeconds += watch.Elapsed.Seconds;
+                var timeWhenFinished = DateTime.Now.AddSeconds((totalSeconds / i) * (epochs - i));
                 Console.WriteLine($"Epoch {i} finished! Training will be completed by {Enum.GetName(typeof(DayOfWeek), timeWhenFinished.DayOfWeek)}, {timeWhenFinished.Hour}:{timeWhenFinished.Minute}h");
             }
 
