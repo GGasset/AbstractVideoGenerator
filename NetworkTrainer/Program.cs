@@ -165,7 +165,7 @@ namespace NetworkTrainer
             RunNetworkExecutionUI();
         }
 
-        private static void TrainGanOnImages(List<string> paths, int[] generativeShape, int[] discriminativeShape, double learningRate)
+        private static void TrainGanOnImages(List<string> paths, int[] generativeShape, int[] discriminativeShape, double learningRate, ReinforcementLearningNN reinforcementGenerative = null)
         {
             Console.WriteLine("How many training iterations (Epochs) you wish to make until training termination?");
             int epochs = GetInputInt();
@@ -173,11 +173,14 @@ namespace NetworkTrainer
             Console.WriteLine("On how many images does it needs to be trained at each iteration (epoch)?");
             int imagesPerEpoch = GetInputInt();
 
-            Console.WriteLine("Creating Generative network...");
-            ReinforcementLearningNN reinforcementGenerative = new ReinforcementLearningNN(new NN(generativeShape, NeatNetwork.Libraries.Activation.ActivationFunctions.Sigmoid), learningRate);
-            Console.WriteLine("Creating Discriminative network...");
-            discriminative = new NN(discriminativeShape, NeatNetwork.Libraries.Activation.ActivationFunctions.Sigmoid);
-            Console.WriteLine("Networks created!");
+            if (reinforcementGenerative == null)
+            {
+                Console.WriteLine("Creating Generative network...");
+                reinforcementGenerative = new ReinforcementLearningNN(new NN(generativeShape, NeatNetwork.Libraries.Activation.ActivationFunctions.Sigmoid), learningRate);
+                Console.WriteLine("Creating Discriminative network...");
+                discriminative = new NN(discriminativeShape, NeatNetwork.Libraries.Activation.ActivationFunctions.Sigmoid);
+                Console.WriteLine("Networks created!");
+            }
 
             List<double[]> images = ExpandImages(paths);
 
@@ -193,9 +196,12 @@ namespace NetworkTrainer
             Console.WriteLine("Labels generated.");
 
             Random r = new Random(DateTime.Now.Millisecond);
+            var watch = new Stopwatch();
             int batchLength = 6;
             for (int i = 0; i < epochs; i++)
             {
+                watch.Restart();
+                watch.Start();
                 Console.WriteLine("Training Discriminative on Real data... " + i);
                 for (int j = 0; j < (int)Math.Ceiling((double)imagesPerEpoch / batchLength); j++)
                 {
@@ -230,6 +236,10 @@ namespace NetworkTrainer
 
                 Console.WriteLine("Training Discriminative on Fake data... " + i);
                 discriminative.SupervisedTrain(generatedImages, discriminativeFakeY, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate, 0, batchLength, false);
+
+                watch.Stop();
+                var timeWhenFinished = DateTime.Now.AddSeconds(watch.Elapsed.TotalSeconds * (epochs - i));
+                Console.WriteLine($"Epoch {i} finished! Training will be completed by {Enum.GetName(typeof(DayOfWeek), timeWhenFinished.DayOfWeek)}, {timeWhenFinished.Hour}:{timeWhenFinished.Minute}h");
             }
 
             generative = reinforcementGenerative.n;
@@ -246,9 +256,12 @@ namespace NetworkTrainer
 
             var watch = Stopwatch.StartNew();
 
-            Console.WriteLine("Creating network...");
-            NN output = new NN(autoEncoderShape, NeatNetwork.Libraries.Activation.ActivationFunctions.Sigmoid);
-            Console.WriteLine("Network created!");
+            if (autoencoder == null)
+            {
+                Console.WriteLine("Creating network...");
+                autoencoder = new NN(autoEncoderShape, NeatNetwork.Libraries.Activation.ActivationFunctions.Sigmoid);
+                Console.WriteLine("Network created!");
+            }
 
             List<double[]> imagesData = ExpandImages(paths);
 
@@ -258,7 +271,7 @@ namespace NetworkTrainer
             int epochCounter = 0;
             while (maximumTestCost < testCost && epochCounter < maxEpochs)
             {
-                testCost = output.SupervisedTrain(imagesData, imagesData, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate, 0.05, 10, true);
+                testCost = autoencoder.SupervisedTrain(imagesData, imagesData, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate, 0.05, 10, true);
                 epochCounter++;
                 Console.WriteLine($"Finished iteration {epochCounter} with a test cost of {testCost}");
             }
@@ -267,8 +280,6 @@ namespace NetworkTrainer
             
             MessageBox.Show($"Training of a new autoencoder with {paths.Count} images and {imagesData.Count} images including modificated images in {watch.Elapsed.TotalMinutes} minutes with a test cost of {testCost} after {epochCounter} iterations",
                 "Traning info", MessageBoxButtons.OK);
-
-            autoencoder = output;
         }
 
         private static List<double[]> ExpandImages(List<string> imagePaths)
