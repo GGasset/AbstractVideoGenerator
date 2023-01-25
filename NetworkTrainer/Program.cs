@@ -211,7 +211,7 @@ namespace NetworkTrainer
                 }
 
                 Console.WriteLine("Creating Gaussian noise images... " + i);
-                List<double[]> gaussianNoiseImages = GenerateGaussianNoiseImages(0.5, .1, imagesPerEpoch, discriminative.Shape[0]);
+                List<double[]> gaussianNoiseImages = GenerateGaussianNoiseImages(0.5, .15, imagesPerEpoch, discriminative.Shape[0]);
 
                 Console.WriteLine("Generative Generating images and Discriminative still discriminating... " + i);
                 List<double[]> generatedImages = new List<double[]>();
