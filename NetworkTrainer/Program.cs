@@ -190,6 +190,7 @@ namespace NetworkTrainer
 
                 Console.WriteLine("Generative Generating images and Discriminative still discriminating... " + i);
                 List<double[]> generatedImages = new List<double[]>();
+
                 for (int j = 0; j < imagesPerEpoch; j++)
                 {
                     double[] generatedImage;
@@ -197,7 +198,7 @@ namespace NetworkTrainer
                     double discriminativeActivation = discriminative.Execute(generatedImage)[0];
                     reinforcementGenerative.SetLastReward(GetReward(discriminativeActivation), false);
 
-                    if (j % 10 == 0)
+                    if (j % 5 == 0)
                     {
                         Console.WriteLine($"{j}/{imagesPerEpoch}");
                     }
