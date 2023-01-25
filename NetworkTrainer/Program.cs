@@ -23,107 +23,16 @@ namespace NetworkTrainer
         {
             PrepareApp();
 
-            if (MessageBox.Show("Do you wish to train a network???", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            if (args.Length == 0)
             {
-                if (MessageBox.Show($"The current network output square side resolution is {NetworkOutputSquareSideResolution}, do you want to keep it???", "", MessageBoxButtons.YesNo) == DialogResult.No)
+                if (MessageBox.Show("Do you wish to train a network???", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
-                    Console.WriteLine("Select a resolution for the network output square side, valid inputs are numbers in this format: 20");
-                    NetworkOutputSquareSideResolution = GetInputInt();
-                    Console.WriteLine("\n");
+                    NetworkBootCamp(false);
                 }
-
-                int imageResolution = NetworkOutputSquareSideResolution * NetworkOutputSquareSideResolution;
-                int resolutionDataSize = imageResolution * 3;
-
-                int[] autoEncoderShape = new int[] { resolutionDataSize, 500, 150, 27, 150, 500, resolutionDataSize };
-
-                int GanInputLength = 25;
-                int[] generativeShape = new int[] { GanInputLength, 50, 75, 100, 150, 200, 250, 500, 1000, resolutionDataSize };
-
-                int[] discriminativeShape = new int[] { resolutionDataSize, 500, 100, 20, 2, 1 };
-
-                int[] acceptedOptions = new int[] { 1, 2 };
-                int inputedOption = -1;
-                bool successfullySelectedOption = true;
-                do
-                {
-                    try
-                    {
-                        Console.WriteLine("What type of network do you wish to train??\n\t1 - autoencoder\n\t2 - Gan");
-                        inputedOption = Convert.ToInt32(Console.ReadLine());
-                        successfullySelectedOption = acceptedOptions.Contains(inputedOption);
-                    }
-                    catch (Exception)
-                    {
-                        Console.WriteLine("Please input an accepted integer number");
-                        successfullySelectedOption = false;
-                    }
-                } while (!successfullySelectedOption);
-
-                Console.WriteLine("Enter learning rate value. The format must be one of these: 0,5 - ,5 - 1");
-                double learningRate = GetInputDouble();
-
-                List<string> paths = new List<string>();
-                do
-                {
-                    List<string> currentPaths = GetImagePathsFromFolder();
-                    if (currentPaths != null)
-                    {
-                        paths.AddRange(currentPaths);
-                        Console.WriteLine(GetFolderPathFromFilePath(currentPaths[0]));
-                    }
-                } while (MessageBox.Show("Do you wish to add one more folder for training", "", MessageBoxButtons.YesNo) == DialogResult.Yes);
-
-                switch (inputedOption)
-                {
-                    case 1:
-                        TrainAutoEncoderOnImages(paths, autoEncoderShape, learningRate);
-                        break;
-                    case 2:
-                        TrainGanOnImages(paths, generativeShape, discriminativeShape, learningRate);
-                        break;
-                }
-
-                SaveFileDialog saveFileDialog = new SaveFileDialog()
-                {
-                    InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                    AddExtension = true,
-                    Filter = "Text files (*.txt)|*.txt",
-                    Title = "Select name and where you wish to save your networks",
-                };
-
-                while (saveFileDialog.ShowDialog() != DialogResult.OK) ;
-
-                string path = saveFileDialog.FileName;
-
-                string fileText = string.Empty;
-
-                List<Task<string>> networkToStringTasks = new List<Task<string>>();
-                switch (inputedOption)
-                {
-                    case 0:
-                        fileText += "Gan";
-                        networkToStringTasks.Add(Task.Run(() => discriminative.ToString()));
-                        networkToStringTasks.Add(Task.Run(() => generative.ToString()));
-                        break;
-                    case 1:
-                        fileText += "autoencoder";
-                        networkToStringTasks.Add(Task.Run(() => autoencoder.ToString()));
-                        break;
-                }
-                fileText += "\nJGG\n";
-
-                foreach (var toStringTask in networkToStringTasks)
-                {
-                    toStringTask.Wait();
-                    fileText += toStringTask.Result;
-                }
-
-                File.WriteAllText(path, fileText);
-
-
-                RunNetworkExecutionUI();
-
+            }
+            else if (args[0] == "Train")
+            {
+                NetworkBootCamp(true);
             }
 
             while (true)
@@ -131,7 +40,14 @@ namespace NetworkTrainer
                 var dialogResult = MessageBox.Show("Do you wish to load a network?", "", MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
+                    dialogResult = MessageBox.Show("Do you wish to train the network?", "", MessageBoxButtons.YesNo);
                     LoadNN();
+                    if (dialogResult == DialogResult.Yes)
+                    {
+                        Main(new string[] { "Train" });
+                        return;
+                    }
+
                     RunNetworkExecutionUI();
                 }
                 else
@@ -139,12 +55,114 @@ namespace NetworkTrainer
                     dialogResult = MessageBox.Show("Do you wish to train a network?", "", MessageBoxButtons.YesNo);
                     if (dialogResult == DialogResult.Yes)
                     {
-                        Main(null);
+                        Main(new string[0]);
                         return;
                     }
                 }
             }
 
+        }
+
+        private static void NetworkBootCamp(bool trainExistingNetwork)
+        {
+            if (MessageBox.Show($"The current network output square side resolution is {NetworkOutputSquareSideResolution}, do you want to keep it???", "", MessageBoxButtons.YesNo) == DialogResult.No)
+            {
+                Console.WriteLine("Select a resolution for the network output square side, valid inputs are numbers in this format: 20");
+                NetworkOutputSquareSideResolution = GetInputInt();
+                Console.WriteLine("\n");
+            }
+
+            int imageResolution = NetworkOutputSquareSideResolution * NetworkOutputSquareSideResolution;
+            int resolutionDataSize = imageResolution * 3;
+
+            int[] autoEncoderShape = new int[] { resolutionDataSize, 500, 150, 27, 150, 500, resolutionDataSize };
+
+            int GanInputLength = 25;
+            int[] generativeShape = new int[] { GanInputLength, 50, 75, 100, 150, 200, 250, 500, 1000, resolutionDataSize };
+
+            int[] discriminativeShape = new int[] { resolutionDataSize, 500, 100, 20, 2, 1 };
+
+            int[] acceptedOptions = new int[] { 1, 2 };
+            int inputedOption = -1;
+            bool successfullySelectedOption = true;
+            do
+            {
+                try
+                {
+                    Console.WriteLine("What type of network do you wish to train??\n\t1 - autoencoder\n\t2 - Gan");
+                    inputedOption = Convert.ToInt32(Console.ReadLine());
+                    successfullySelectedOption = acceptedOptions.Contains(inputedOption);
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Please input an accepted integer number");
+                    successfullySelectedOption = false;
+                }
+            } while (!successfullySelectedOption);
+
+            Console.WriteLine("Enter learning rate value. The format must be one of these: 0,5 - ,5 - 1");
+            double learningRate = GetInputDouble();
+
+            List<string> paths = new List<string>();
+            do
+            {
+                List<string> currentPaths = GetImagePathsFromFolder();
+                if (currentPaths != null)
+                {
+                    paths.AddRange(currentPaths);
+                    Console.WriteLine(GetFolderPathFromFilePath(currentPaths[0]));
+                }
+            } while (MessageBox.Show("Do you wish to add one more folder for training", "", MessageBoxButtons.YesNo) == DialogResult.Yes);
+
+            switch (inputedOption)
+            {
+                case 1:
+                    TrainAutoEncoderOnImages(paths, autoEncoderShape, learningRate);
+                    break;
+                case 2:
+                    TrainGanOnImages(paths, generativeShape, discriminativeShape, learningRate);
+                    break;
+            }
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog()
+            {
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                AddExtension = true,
+                Filter = "Text files (*.txt)|*.txt",
+                Title = "Select name and where you wish to save your networks",
+            };
+
+            while (saveFileDialog.ShowDialog() != DialogResult.OK) ;
+
+            string path = saveFileDialog.FileName;
+
+            string fileText = string.Empty;
+
+            List<Task<string>> networkToStringTasks = new List<Task<string>>();
+            switch (inputedOption)
+            {
+                case 0:
+                    fileText += "Gan";
+                    networkToStringTasks.Add(Task.Run(() => discriminative.ToString()));
+                    networkToStringTasks.Add(Task.Run(() => generative.ToString()));
+                    break;
+                case 1:
+                    fileText += "autoencoder";
+                    networkToStringTasks.Add(Task.Run(() => autoencoder.ToString()));
+                    break;
+            }
+            fileText += "\nJGG\n";
+
+            foreach (var toStringTask in networkToStringTasks)
+            {
+                toStringTask.Wait();
+                fileText += toStringTask.Result;
+            }
+
+            File.WriteAllText(path, fileText);
+
+
+            RunNetworkExecutionUI();
         }
 
         private static void TrainGanOnImages(List<string> paths, int[] generativeShape, int[] discriminativeShape, double learningRate)
@@ -196,7 +214,7 @@ namespace NetworkTrainer
                     double[] generatedImage;
                     generatedImages.Add(generatedImage = reinforcementGenerative.Execute(gaussianNoiseImages[j]));
                     double discriminativeActivation = discriminative.Execute(generatedImage)[0];
-                    reinforcementGenerative.SetLastReward(GetReward(discriminativeActivation), false);
+                    reinforcementGenerative.SetLastReward(GetReward(discriminativeActivation));
 
                     if (j % 5 == 0)
                     {
