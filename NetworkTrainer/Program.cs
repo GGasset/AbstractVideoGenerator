@@ -180,7 +180,7 @@ namespace NetworkTrainer
             Console.WriteLine("How many diffusion per image?");
             int diffusedImagesPerImage = GetInputInt();
 
-            Console.WriteLine("On how many images does it need to be trained?");
+            Console.WriteLine("On how many images does it need to be trained per epoch?");
             int totalImagesPerEpoch = GetInputInt();
 
             Console.WriteLine("How many epochs?");
