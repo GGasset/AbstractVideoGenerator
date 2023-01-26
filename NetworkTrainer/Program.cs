@@ -180,10 +180,10 @@ namespace NetworkTrainer
             Console.WriteLine("How many diffusion per image?");
             int diffusedImagesPerImage = GetInputInt();
 
-            Console.WriteLine("On how many images does it need to be trained per epoch?");
+            Console.WriteLine("On how many images does it need to be trained per epoch? (Recommended a low number like 15)");
             int totalImagesPerEpoch = GetInputInt();
 
-            Console.WriteLine("How many epochs?");
+            Console.WriteLine("How many epochs? (Recommended a high number like 500)");
             int epochs = GetInputInt();
 
             Console.WriteLine("Creating network...");
@@ -214,6 +214,9 @@ namespace NetworkTrainer
                         //Add diffused image
                         trainingImages[j][k] = ApplyGaussianNoiseToImageData(trainingImages[j][k - 1], 0, .15);
                     }
+
+                    if (j % 10 == 0)
+                        Console.WriteLine($"{j * diffusedImagesPerImage}/{totalImagesPerEpoch * diffusedImagesPerImage}");
                 }
 
                 Console.WriteLine("Parsing data... " + i);
