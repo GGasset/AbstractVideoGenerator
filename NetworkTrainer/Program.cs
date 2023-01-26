@@ -91,7 +91,7 @@ namespace NetworkTrainer
             {
                 try
                 {
-                    Console.WriteLine("What type of network do you wish to train??\n\t1 - autoencoder\n\t2 - Gans\n\t3 - Stable diffusion network (reverse diffusor)");
+                    Console.WriteLine("What type of network do you wish to train??\n\t1 - autoencoder (not recommended)\n\t2 - Gans\n\t3 - Stable diffusion network (reverse diffusor)");
                     inputedOption = Convert.ToInt32(Console.ReadLine());
                     successfullySelectedOption = acceptedOptions.Contains(inputedOption);
                 }
@@ -180,10 +180,10 @@ namespace NetworkTrainer
             Console.WriteLine("How many diffusion per image?");
             int diffusedImagesPerImage = GetInputInt();
 
-            Console.WriteLine("On how many images does it need to be trained per epoch? (Recommended a low number like 15)");
+            Console.WriteLine("On how many images does it need to be trained per epoch? (Recommended a low number like 30)");
             int totalImagesPerEpoch = GetInputInt();
 
-            Console.WriteLine("How many epochs? (Recommended a high number like 500)");
+            Console.WriteLine("How many epochs? (Recommended a high number like 3000)");
             int epochs = GetInputInt();
 
             Console.WriteLine("Creating network...");
