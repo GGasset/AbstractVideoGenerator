@@ -165,7 +165,74 @@ namespace NetworkTrainer
             RunNetworkExecutionUI();
         }
 
-        private static void TrainGanOnImages(List<string> paths, int[] generativeShape, int[] discriminativeShape, double learningRate, ReinforcementLearningNN reinforcementGenerative = null)
+        private static void TrainReverseDiffusorOnImages(List<string> paths, int[] reverseDiffusorShape, double learningRate)
+        {
+            Console.WriteLine("How many diffusion per image?");
+            int diffusedImagesPerImage = GetInputInt();
+
+            Console.WriteLine("On how many images does it need to be trained?");
+            int totalImagesPerEpoch = GetInputInt();
+
+            Console.WriteLine("How many epochs?");
+            int epochs = GetInputInt();
+
+            Console.WriteLine("Creating network...");
+            reverseDiffusor = new NN(reverseDiffusorShape, NeatNetwork.Libraries.Activation.ActivationFunctions.Sigmoid);
+
+            Console.WriteLine("Expanding images...");
+            List<double[]> images = ExpandImages(paths);
+
+            var watch = new Stopwatch();
+            Random r = new Random(DateTime.Now.Millisecond);
+
+            int totalSeconds = 0;
+            for (int i = 0; i < epochs; i++)
+            {
+                Console.WriteLine("Difussing images.. " + i);
+                // List of images containing diffused images array of arrays
+                List<double[][]> trainingImages = new List<double[][]>();
+                for (int j = 0; j < totalImagesPerEpoch; j++)
+                {
+                    trainingImages.Add(new double[diffusedImagesPerImage][]);
+
+                    // Original image
+                    trainingImages[j][0] = images[r.Next(images.Count)];
+                    for (int k = 1; k < diffusedImagesPerImage; k++)
+                    {
+                        //Add diffused image
+                        trainingImages[j][k] = ApplyGaussianNoiseToImageData(trainingImages[j][k - 1], 0, .15);
+                    }
+                }
+
+                Console.WriteLine("Parsing data... " + i);
+                List<double[]> X = new List<double[]>();
+                List<double[]> Y = new List<double[]>();
+                for (int j = 0; j < totalImagesPerEpoch; j++)
+                {
+                    for (int k = diffusedImagesPerImage - 1; k >= 1; k--)
+                    {
+                        X.Add(trainingImages[j][k]);
+                        Y.Add(trainingImages[j][k - 1]);
+                    }
+                    if (j % 10 == 0)
+                    {
+                        Console.WriteLine($"{j}/{totalImagesPerEpoch}");
+                    }
+                }
+                trainingImages.Clear();
+
+                Console.WriteLine("Training network... " + i);
+                reverseDiffusor.SupervisedTrain(X, Y, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate, 0, 6, false);
+
+                watch.Stop();
+                totalSeconds += watch.Elapsed.Seconds;
+                int secondsToAdd = totalSeconds / i * (epochs - i);
+                DateTime finishingTime = DateTime.Now.AddSeconds(secondsToAdd);
+                Console.WriteLine($"Finished epoch {i}! Training will be finished by {Enum.GetName(typeof(DayOfWeek), finishingTime.DayOfWeek)}, {finishingTime.Day} at {finishingTime.Hour}:{finishingTime.Minute}H");
+            }
+        }
+
+        private static void TrainGanOnImages(List<string> paths, int[] generativeShape, int[] discriminativeShape, double learningRate)
         {
             Console.WriteLine("How many training iterations (Epochs) you wish to make until training termination?");
             int epochs = GetInputInt();
@@ -173,13 +240,18 @@ namespace NetworkTrainer
             Console.WriteLine("On how many images does it needs to be trained at each iteration (epoch)?");
             int imagesPerEpoch = GetInputInt();
 
-            if (reinforcementGenerative == null)
+            ReinforcementLearningNN reinforcementGenerative;
+            if (generative == null)
             {
                 Console.WriteLine("Creating Generative network...");
                 reinforcementGenerative = new ReinforcementLearningNN(new NN(generativeShape, NeatNetwork.Libraries.Activation.ActivationFunctions.Sigmoid), learningRate);
                 Console.WriteLine("Creating Discriminative network...");
                 discriminative = new NN(discriminativeShape, NeatNetwork.Libraries.Activation.ActivationFunctions.Sigmoid);
                 Console.WriteLine("Networks created!");
+            }
+            else
+            {
+                reinforcementGenerative = new ReinforcementLearningNN(generative, learningRate);
             }
 
             List<double[]> images = ExpandImages(paths);
@@ -241,7 +313,7 @@ namespace NetworkTrainer
                 watch.Stop();
                 totalSeconds += watch.Elapsed.Seconds;
                 var timeWhenFinished = DateTime.Now.AddSeconds((totalSeconds / i) * (epochs - i));
-                Console.WriteLine($"Epoch {i} finished! Training will be completed by {Enum.GetName(typeof(DayOfWeek), timeWhenFinished.DayOfWeek)}, {timeWhenFinished.Hour}:{timeWhenFinished.Minute}h");
+                Console.WriteLine($"Epoch {i} finished! Training will be completed by {Enum.GetName(typeof(DayOfWeek), timeWhenFinished.DayOfWeek)}, {timeWhenFinished.Day} at {timeWhenFinished.Hour}:{timeWhenFinished.Minute}H");
             }
 
             generative = reinforcementGenerative.n;
