@@ -27,12 +27,12 @@ namespace NetworkTrainer
             {
                 if (MessageBox.Show("Do you wish to train a network???", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
-                    NetworkBootCamp(false);
+                    NetworkBootCamp();
                 }
             }
             else if (args[0] == "Train")
             {
-                NetworkBootCamp(true);
+                NetworkBootCamp();
             }
 
             while (true)
@@ -63,7 +63,7 @@ namespace NetworkTrainer
 
         }
 
-        private static void NetworkBootCamp(bool trainExistingNetwork)
+        private static void NetworkBootCamp()
         {
             if (MessageBox.Show($"The current network output square side resolution is {NetworkOutputSquareSideResolution}, do you want to keep it???", "", MessageBoxButtons.YesNo) == DialogResult.No)
             {
@@ -82,6 +82,8 @@ namespace NetworkTrainer
 
             int[] discriminativeShape = new int[] { resolutionDataSize, 500, 100, 20, 2, 1 };
 
+            int[] reverseDiffusorShape = new int[] { resolutionDataSize, 150, 200, 300, 400, resolutionDataSize };
+
             int[] acceptedOptions = new int[] { 1, 2, 3 };
             int inputedOption = -1;
             bool successfullySelectedOption;
@@ -89,7 +91,7 @@ namespace NetworkTrainer
             {
                 try
                 {
-                    Console.WriteLine("What type of network do you wish to train??\n\t1 - autoencoder\n\t2 - Gan\n\t3 - Stable diffusion network (reverse diffusor)");
+                    Console.WriteLine("What type of network do you wish to train??\n\t1 - autoencoder\n\t2 - Gans\n\t3 - Stable diffusion network (reverse diffusor)");
                     inputedOption = Convert.ToInt32(Console.ReadLine());
                     successfullySelectedOption = acceptedOptions.Contains(inputedOption);
                 }
@@ -122,6 +124,9 @@ namespace NetworkTrainer
                 case 2:
                     TrainGanOnImages(paths, generativeShape, discriminativeShape, learningRate);
                     break;
+                case 3:
+                    TrainReverseDiffusorOnImages(paths, reverseDiffusorShape, learningRate);
+                    break;
             }
 
             SaveFileDialog saveFileDialog = new SaveFileDialog()
@@ -146,9 +151,13 @@ namespace NetworkTrainer
                     networkToStringTasks.Add(Task.Run(() => autoencoder.ToString()));
                     break;
                 case 2:
-                    fileText += "Gan";
+                    fileText += "Gans";
                     networkToStringTasks.Add(Task.Run(() => discriminative.ToString()));
                     networkToStringTasks.Add(Task.Run(() => generative.ToString()));
+                    break;
+                case 3:
+                    fileText += "Reverse diffusor";
+                    networkToStringTasks.Add(Task.Run(() => reverseDiffusor.ToString()));
                     break;
 
             }
@@ -268,8 +277,6 @@ namespace NetworkTrainer
             for (int i = 0; i < imagesPerEpoch; i++)
                 discriminativeFakeY.Add(new double[] { 0 });
 
-            Console.WriteLine("Labels generated.");
-
             Random r = new Random(DateTime.Now.Millisecond);
             var watch = new Stopwatch();
             int totalSeconds = 0;
@@ -278,7 +285,7 @@ namespace NetworkTrainer
             {
                 watch.Restart();
                 watch.Start();
-                Console.WriteLine("Training Discriminative on Real data... " + i);
+                Console.WriteLine("Training Discriminative on real data... " + i);
                 for (int j = 0; j < (int)Math.Ceiling((double)imagesPerEpoch / batchLength); j++)
                 {
                     discriminative.SupervisedLearningBatch(images, discriminativeRealY, batchLength, NeatNetwork.Libraries.Cost.CostFunctions.SquaredMean, learningRate);
@@ -286,7 +293,7 @@ namespace NetworkTrainer
                 }
 
                 Console.WriteLine("Creating Gaussian noise images... " + i);
-                List<double[]> gaussianNoiseImages = GenerateGaussianNoiseImages(0.5, .15, imagesPerEpoch, discriminative.Shape[0]);
+                List<double[]> gaussianNoiseImages = GenerateGaussianNoiseImages(0.5, .15, imagesPerEpoch, generative.Shape[0]);
 
                 Console.WriteLine("Generative Generating images and Discriminative still discriminating... " + i);
                 List<double[]> generatedImages = new List<double[]>();
@@ -396,6 +403,11 @@ namespace NetworkTrainer
 
             var filePath = openFileDialog.FileName;
 
+            autoencoder = null;
+            generative = null;
+            discriminative = null;
+            reverseDiffusor = null;
+
             string text = string.Empty;
             using (StreamReader reader = new StreamReader(filePath))
             {
@@ -414,10 +426,16 @@ namespace NetworkTrainer
                 case "autoencoder":
                     NNTasks.Add(Task.Run(() => new NN(networkStrs[0])));
                     break;
-                case "Gan":
+
+                case "Gans":
                     NNTasks.Add(Task.Run(() => new NN(networkStrs[0])));
                     NNTasks.Add(Task.Run(() => new NN(networkStrs[1])));
                     break;
+
+                case "reverse diffusor":
+                    NNTasks.Add(Task.Run(() => new NN(networkStrs[0])));
+                    break;
+
                 default:
                     var dialogResult = MessageBox.Show("This file wasn't generated by this app and thus is incompatible. Consider restarting the app and selecting a valid Neural Network or training one.", "Error", MessageBoxButtons.YesNo);
                     if (dialogResult == DialogResult.No)
