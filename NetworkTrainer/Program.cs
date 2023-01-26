@@ -82,14 +82,14 @@ namespace NetworkTrainer
 
             int[] discriminativeShape = new int[] { resolutionDataSize, 500, 100, 20, 2, 1 };
 
-            int[] acceptedOptions = new int[] { 1, 2 };
+            int[] acceptedOptions = new int[] { 1, 2, 3 };
             int inputedOption = -1;
-            bool successfullySelectedOption = true;
+            bool successfullySelectedOption;
             do
             {
                 try
                 {
-                    Console.WriteLine("What type of network do you wish to train??\n\t1 - autoencoder\n\t2 - Gan");
+                    Console.WriteLine("What type of network do you wish to train??\n\t1 - autoencoder\n\t2 - Gan\n\t3 - Stable diffusion network (reverse diffusor)");
                     inputedOption = Convert.ToInt32(Console.ReadLine());
                     successfullySelectedOption = acceptedOptions.Contains(inputedOption);
                 }
@@ -141,15 +141,16 @@ namespace NetworkTrainer
             List<Task<string>> networkToStringTasks = new List<Task<string>>();
             switch (inputedOption)
             {
-                case 0:
-                    fileText += "Gan";
-                    networkToStringTasks.Add(Task.Run(() => discriminative.ToString()));
-                    networkToStringTasks.Add(Task.Run(() => generative.ToString()));
-                    break;
                 case 1:
                     fileText += "autoencoder";
                     networkToStringTasks.Add(Task.Run(() => autoencoder.ToString()));
                     break;
+                case 2:
+                    fileText += "Gan";
+                    networkToStringTasks.Add(Task.Run(() => discriminative.ToString()));
+                    networkToStringTasks.Add(Task.Run(() => generative.ToString()));
+                    break;
+
             }
             fileText += "\nJGG\n";
 
@@ -188,6 +189,8 @@ namespace NetworkTrainer
             int totalSeconds = 0;
             for (int i = 0; i < epochs; i++)
             {
+                watch.Restart();
+                watch.Start();
                 Console.WriteLine("Difussing images.. " + i);
                 // List of images containing diffused images array of arrays
                 List<double[][]> trainingImages = new List<double[][]>();
@@ -226,7 +229,7 @@ namespace NetworkTrainer
 
                 watch.Stop();
                 totalSeconds += watch.Elapsed.Seconds;
-                int secondsToAdd = totalSeconds / i * (epochs - i);
+                int secondsToAdd = totalSeconds / (i + 1) * (epochs - i);
                 DateTime finishingTime = DateTime.Now.AddSeconds(secondsToAdd);
                 Console.WriteLine($"Finished epoch {i}! Training will be finished by {Enum.GetName(typeof(DayOfWeek), finishingTime.DayOfWeek)}, {finishingTime.Day} at {finishingTime.Hour}:{finishingTime.Minute}H");
             }
@@ -312,7 +315,7 @@ namespace NetworkTrainer
 
                 watch.Stop();
                 totalSeconds += watch.Elapsed.Seconds;
-                var finishingTime = DateTime.Now.AddSeconds((totalSeconds / i) * (epochs - i));
+                var finishingTime = DateTime.Now.AddSeconds((totalSeconds / (i + 1)) * (epochs - i));
                 Console.WriteLine($"Epoch {i} finished! Training will be completed by {Enum.GetName(typeof(DayOfWeek), finishingTime.DayOfWeek)}, {finishingTime.Day} at {finishingTime.Hour}:{finishingTime.Minute}H");
             }
 
