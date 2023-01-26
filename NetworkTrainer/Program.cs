@@ -312,8 +312,8 @@ namespace NetworkTrainer
 
                 watch.Stop();
                 totalSeconds += watch.Elapsed.Seconds;
-                var timeWhenFinished = DateTime.Now.AddSeconds((totalSeconds / i) * (epochs - i));
-                Console.WriteLine($"Epoch {i} finished! Training will be completed by {Enum.GetName(typeof(DayOfWeek), timeWhenFinished.DayOfWeek)}, {timeWhenFinished.Day} at {timeWhenFinished.Hour}:{timeWhenFinished.Minute}H");
+                var finishingTime = DateTime.Now.AddSeconds((totalSeconds / i) * (epochs - i));
+                Console.WriteLine($"Epoch {i} finished! Training will be completed by {Enum.GetName(typeof(DayOfWeek), finishingTime.DayOfWeek)}, {finishingTime.Day} at {finishingTime.Hour}:{finishingTime.Minute}H");
             }
 
             generative = reinforcementGenerative.n;
