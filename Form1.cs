@@ -139,7 +139,7 @@ namespace AbstractVideoGenerator
 
         #endregion Auto encoder execution
 
-        #region GanExecution
+        #region Gan execution
 
         private void ShowGanImageBttn_Click(object sender, EventArgs e)
         {
@@ -156,7 +156,7 @@ namespace AbstractVideoGenerator
             resized.Dispose();
         }
 
-        #endregion
+        #endregion Gan execution
 
         #endregion Form things
 
