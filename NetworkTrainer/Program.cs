@@ -18,21 +18,30 @@ namespace NetworkTrainer
     {
         public static int NetworkOutputSquareSideResolution = 24;
 
+        public static LoadedNetworkType loadedNetwork;
+
+        public enum LoadedNetworkType
+        {
+            autoencoder = 1,
+            Gans = 2,
+            ReverseDiffusor = 3,
+        }
+
         [STAThread]
         public static void Main(string[] args)
         {
             PrepareApp();
 
-            if (args.Length == 0)
+            if (args[0] == string.Empty)
             {
                 if (MessageBox.Show("Do you wish to train a network???", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
-                    NetworkBootCamp();
+                    NetworkBootCamp(args);
                 }
             }
-            else if (args[0] == "Train")
+            else if (args[0] == "Train existing")
             {
-                NetworkBootCamp();
+                NetworkBootCamp(args);
             }
 
             while (true)
@@ -44,7 +53,7 @@ namespace NetworkTrainer
                     LoadNN();
                     if (dialogResult == DialogResult.Yes)
                     {
-                        Main(new string[] { "Train" });
+                        Main(new string[] { "Train existing" });
                         return;
                     }
 
@@ -55,7 +64,7 @@ namespace NetworkTrainer
                     dialogResult = MessageBox.Show("Do you wish to train a network?", "", MessageBoxButtons.YesNo);
                     if (dialogResult == DialogResult.Yes)
                     {
-                        Main(new string[0]);
+                        Main(new string[1]);
                         return;
                     }
                 }
@@ -63,7 +72,7 @@ namespace NetworkTrainer
 
         }
 
-        private static void NetworkBootCamp()
+        private static void NetworkBootCamp(string[] args)
         {
             if (MessageBox.Show($"The current network output square side resolution is {NetworkOutputSquareSideResolution}, do you want to keep it???", "", MessageBoxButtons.YesNo) == DialogResult.No)
             {
@@ -87,20 +96,28 @@ namespace NetworkTrainer
             int[] acceptedOptions = new int[] { 1, 2, 3 };
             int inputedOption = -1;
             bool successfullySelectedOption;
-            do
+            if (args[0] != "Train existing")
             {
-                try
+                do
                 {
-                    Console.WriteLine("What type of network do you wish to train??\n\t1 - autoencoder (not recommended)\n\t2 - Gans\n\t3 - Stable diffusion network (reverse diffusor)");
-                    inputedOption = Convert.ToInt32(Console.ReadLine());
-                    successfullySelectedOption = acceptedOptions.Contains(inputedOption);
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine("Please input an accepted integer number");
-                    successfullySelectedOption = false;
-                }
-            } while (!successfullySelectedOption);
+                    try
+                    {
+                        Console.WriteLine("What type of network do you wish to train??\n\t1 - autoencoder (not recommended)\n\t2 - Gans\n\t3 - Stable diffusion network (reverse diffusor)");
+                        inputedOption = Convert.ToInt32(Console.ReadLine());
+                        successfullySelectedOption = acceptedOptions.Contains(inputedOption);
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine("Please input an accepted integer number");
+                        successfullySelectedOption = false;
+                    }
+                } while (!successfullySelectedOption);
+                loadedNetwork = (LoadedNetworkType)inputedOption;
+            }
+            else
+            {
+                inputedOption = (int)loadedNetwork;
+            }
 
             Console.WriteLine("Enter learning rate value. The format must be one of these: 0,5 - ,5 - 1");
             double learningRate = GetInputDouble();
@@ -116,7 +133,7 @@ namespace NetworkTrainer
                 }
             } while (MessageBox.Show("Do you wish to add one more folder for training", "", MessageBoxButtons.YesNo) == DialogResult.Yes);
 
-            switch (inputedOption)
+            switch ((int)loadedNetwork)
             {
                 case 1:
                     TrainAutoEncoderOnImages(paths, autoEncoderShape, learningRate);
@@ -369,7 +386,7 @@ namespace NetworkTrainer
                 "Traning info", MessageBoxButtons.OK);
         }
 
-        private static List<double[]> ExpandImages(List<string> imagePaths)
+        private static List<double[]> ExpandImages(List<string> imagePaths, bool isGreyScale = false)
         {
             Console.WriteLine("Expanding and parsing image data...");
             List<double[]> imagesData = new List<double[]>();
@@ -380,7 +397,7 @@ namespace NetworkTrainer
                 Bitmap original = new Bitmap(imagePath);
                 Bitmap reduced = new Bitmap(original, new Size(NetworkOutputSquareSideResolution, NetworkOutputSquareSideResolution));
 
-                imagesData.AddRange(GetImageVariations(reduced));
+                imagesData.AddRange(GetImageVariations(reduced, isGreyScale));
 
                 original.Dispose();
                 reduced.Dispose();
