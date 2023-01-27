@@ -188,7 +188,6 @@ namespace AbstractVideoGenerator
                 default:
                     throw new NotImplementedException();
             }
-            output = autoencoder.Shape[autoencoder.Shape.Length - 1];
             output /= 3;
             output = Convert.ToInt32(Math.Sqrt(output));
             return output;
