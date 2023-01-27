@@ -9,6 +9,16 @@ namespace Functionality
 {
     public static class NetworkHolder
     {
+        public static LoadedNetworkType loadedNetwork;
+
+        public enum LoadedNetworkType
+        {
+            autoencoder = 1,
+            Gans = 2,
+            ReverseDiffusor = 3,
+        }
+
+
         public static NN autoencoder, generative, discriminative, reverseDiffusor;
     }
 }

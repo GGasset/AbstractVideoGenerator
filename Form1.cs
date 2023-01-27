@@ -69,7 +69,7 @@ namespace AbstractVideoGenerator
                 return;
 
             originalImage = new Bitmap(imagePath);
-            int networkOutputSquareSideSize = GetAutoencoderOutputSquareSideSize();
+            int networkOutputSquareSideSize = GetOutputSquareSideSize();
 
             Bitmap reducedImage = new Bitmap(originalImage, new Size(networkOutputSquareSideSize, networkOutputSquareSideSize));
 
@@ -102,7 +102,7 @@ namespace AbstractVideoGenerator
             if (imagePath == null)
                 return;
 
-            int networkOutputSquareSideSize = GetAutoencoderOutputSquareSideSize();
+            int networkOutputSquareSideSize = GetOutputSquareSideSize();
 
             Bitmap bmp = new Bitmap(imagePath);
             Bitmap downscaledBmp = new Bitmap(bmp, networkOutputSquareSideSize, networkOutputSquareSideSize);
@@ -121,7 +121,7 @@ namespace AbstractVideoGenerator
         private void ShowAlteredImage(object sender, EventArgs e)
         {
             var nOutput = autoencoder.ExecuteFromLayer(GetAutoencoderMostCompressedLayer(), compressedVideoImage);
-            int networkOutputSquareSideSize = GetAutoencoderOutputSquareSideSize();
+            int networkOutputSquareSideSize = GetOutputSquareSideSize();
             Bitmap outputNetworkImage = DoubleArrayToBitmap(nOutput, networkOutputSquareSideSize, networkOutputSquareSideSize);
             Bitmap upscaledBmp = new Bitmap(outputNetworkImage, Display.Size);
             Display.Image.Dispose();
@@ -143,7 +143,17 @@ namespace AbstractVideoGenerator
 
         private void ShowGanImageBttn_Click(object sender, EventArgs e)
         {
+            Display.Image.Dispose();
 
+            string imagePath = GetImagePath();
+
+            Bitmap original = new Bitmap(imagePath);
+            Bitmap resized = new Bitmap(original, new Size(GetOutputSquareSideSize(), GetOutputSquareSideSize()));
+
+            Display.Image = DoubleArrayToBitmap(generative.Execute(BitmapToDoubleArray(resized)), resized.Width, resized.Height);
+
+            original.Dispose();
+            resized.Dispose();
         }
 
         #endregion
@@ -161,9 +171,24 @@ namespace AbstractVideoGenerator
             return folderPath;
         }
 
-        private int GetAutoencoderOutputSquareSideSize()
+        private int GetOutputSquareSideSize()
         {
-            int output = autoencoder.Shape[autoencoder.Shape.Length - 1];
+            int output;
+            switch (loadedNetwork)
+            {
+                case LoadedNetworkType.autoencoder:
+                    output = autoencoder.Shape[0];
+                    break;
+                case LoadedNetworkType.Gans:
+                    output = discriminative.Shape[0];
+                    break;
+                case LoadedNetworkType.ReverseDiffusor:
+                    output = reverseDiffusor.Shape[0];
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+            output = autoencoder.Shape[autoencoder.Shape.Length - 1];
             output /= 3;
             output = Convert.ToInt32(Math.Sqrt(output));
             return output;

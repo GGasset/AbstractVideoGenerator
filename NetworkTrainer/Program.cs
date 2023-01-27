@@ -18,15 +18,6 @@ namespace NetworkTrainer
     {
         public static int NetworkOutputSquareSideResolution = 24;
 
-        public static LoadedNetworkType loadedNetwork;
-
-        public enum LoadedNetworkType
-        {
-            autoencoder = 1,
-            Gans = 2,
-            ReverseDiffusor = 3,
-        }
-
         [STAThread]
         public static void Main(string[] args)
         {
