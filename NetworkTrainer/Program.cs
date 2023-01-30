@@ -23,7 +23,15 @@ namespace NetworkTrainer
         {
             PrepareApp();
 
-            if (args[0] == string.Empty)
+            if (args.Length == 0)
+            {
+                args = null;
+                if (MessageBox.Show("Do you wish to train a network???", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    NetworkBootCamp(args);
+                }
+            }
+            else if (args[0] == string.Empty)
             {
                 if (MessageBox.Show("Do you wish to train a network???", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
@@ -87,24 +95,24 @@ namespace NetworkTrainer
             int[] acceptedOptions = new int[] { 1, 2, 3 };
             int inputedOption = -1;
             bool successfullySelectedOption;
-            if (args[0] != "Train existing")
-            {
-                do
+                if (args?[0] != "Train existing")
                 {
-                    try
+                    do
                     {
-                        Console.WriteLine("What type of network do you wish to train??\n\t1 - autoencoder (not recommended)\n\t2 - Gans\n\t3 - Stable diffusion network (reverse diffusor)");
-                        inputedOption = Convert.ToInt32(Console.ReadLine());
-                        successfullySelectedOption = acceptedOptions.Contains(inputedOption);
-                    }
-                    catch (Exception)
-                    {
-                        Console.WriteLine("Please input an accepted integer number");
-                        successfullySelectedOption = false;
-                    }
-                } while (!successfullySelectedOption);
-                loadedNetwork = (LoadedNetworkType)inputedOption;
-            }
+                        try
+                        {
+                            Console.WriteLine("What type of network do you wish to train??\n\t1 - autoencoder (not recommended)\n\t2 - Gans\n\t3 - Stable diffusion network (reverse diffusor)");
+                            inputedOption = Convert.ToInt32(Console.ReadLine());
+                            successfullySelectedOption = acceptedOptions.Contains(inputedOption);
+                        }
+                        catch (Exception)
+                        {
+                            Console.WriteLine("Please input an accepted integer number");
+                            successfullySelectedOption = false;
+                        }
+                    } while (!successfullySelectedOption);
+                    loadedNetwork = (LoadedNetworkType)inputedOption;
+                }
             else
             {
                 inputedOption = (int)loadedNetwork;
@@ -304,7 +312,7 @@ namespace NetworkTrainer
                 }
 
                 Console.WriteLine("Creating Gaussian noise images... " + i);
-                List<double[]> gaussianNoiseImages = GenerateGaussianNoiseImages(0.5, .15, imagesPerEpoch, generative.Shape[0]);
+                List<double[]> gaussianNoiseImages = GenerateGaussianNoiseImages(0.5, .15, imagesPerEpoch, reinforcementGenerative.n.Shape[0]);
 
                 Console.WriteLine("Generative Generating images and Discriminative still discriminating... " + i);
                 List<double[]> generatedImages = new List<double[]>();
@@ -333,7 +341,7 @@ namespace NetworkTrainer
 
                 watch.Stop();
                 totalSeconds += watch.Elapsed.Seconds;
-                var finishingTime = DateTime.Now.AddSeconds((totalSeconds / (i + 1)) * (epochs - i));
+                var finishingTime = DateTime.Now.AddSeconds(totalSeconds / (i + 1) * (epochs - i));
                 Console.WriteLine($"Epoch {i} finished! Training will be completed by {Enum.GetName(typeof(DayOfWeek), finishingTime.DayOfWeek)}, {finishingTime.Day} at {finishingTime.Hour}:{finishingTime.Minute}H");
             }
 
