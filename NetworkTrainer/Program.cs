@@ -7,10 +7,10 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static Functionality.ImageProcessing;
-using static Functionality.PathGetter;
-using static Functionality.NetworkHolder;
 using static AbstractVideoGenerator.Program;
+using static Functionality.ImageProcessing;
+using static Functionality.NetworkHolder;
+using static Functionality.PathGetter;
 
 namespace NetworkTrainer
 {
@@ -21,9 +21,9 @@ namespace NetworkTrainer
         [STAThread]
         public static void Main(string[] args)
         {
-            PrepareApp();
+            PrepareUI();
 
-            if (args.Length == 0)
+            if (args?.Length == 0 || args == null)
             {
                 args = null;
                 if (MessageBox.Show("Do you wish to train a network???", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
@@ -31,18 +31,26 @@ namespace NetworkTrainer
                     NetworkBootCamp(args);
                 }
             }
-            else if (args[0] == string.Empty)
+            else
             {
-                if (MessageBox.Show("Do you wish to train a network???", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                switch (args[0])
                 {
-                    NetworkBootCamp(args);
+                    case "Train existing":
+                        NetworkBootCamp(args);
+                        break;
+                    case "Accepted":
+                        NetworkBootCamp(args);
+                        break;
+                    default:
+                        throw new NotImplementedException();
                 }
             }
-            else if (args[0] == "Train existing")
-            {
-                NetworkBootCamp(args);
-            }
 
+            Update();
+        }
+
+        private static void Update()
+        {
             while (true)
             {
                 var dialogResult = MessageBox.Show("Do you wish to load a network?", "", MessageBoxButtons.YesNo);
@@ -63,12 +71,11 @@ namespace NetworkTrainer
                     dialogResult = MessageBox.Show("Do you wish to train a network?", "", MessageBoxButtons.YesNo);
                     if (dialogResult == DialogResult.Yes)
                     {
-                        Main(new string[1]);
+                        Main(new string[] { "Accepted" });
                         return;
                     }
                 }
             }
-
         }
 
         private static void NetworkBootCamp(string[] args)
@@ -92,30 +99,31 @@ namespace NetworkTrainer
 
             int[] reverseDiffusorShape = new int[] { resolutionDataSize, 150, 200, 300, 400, resolutionDataSize };
 
-            int[] acceptedOptions = new int[] { 1, 2, 3 };
-            int inputedOption = -1;
+            int selectedInputOption = -1;
             bool successfullySelectedOption;
-                if (args?[0] != "Train existing")
-                {
-                    do
-                    {
-                        try
-                        {
-                            Console.WriteLine("What type of network do you wish to train??\n\t1 - autoencoder (not recommended)\n\t2 - Gans\n\t3 - Stable diffusion network (reverse diffusor)");
-                            inputedOption = Convert.ToInt32(Console.ReadLine());
-                            successfullySelectedOption = acceptedOptions.Contains(inputedOption);
-                        }
-                        catch (Exception)
-                        {
-                            Console.WriteLine("Please input an accepted integer number");
-                            successfullySelectedOption = false;
-                        }
-                    } while (!successfullySelectedOption);
-                    loadedNetwork = (LoadedNetworkType)inputedOption;
-                }
-            else
+            if (args?[0] != "Train existing")
             {
-                inputedOption = (int)loadedNetwork;
+                string[] names = Enum.GetNames(typeof(LoadedNetworkType));
+                int[] values = (int[])Enum.GetValues(typeof(LoadedNetworkType));
+                do
+                {
+                    try
+                    {
+                        Console.WriteLine("What type of network do you wish to train??");
+                        for (int i = 0; i < names.Length; i++)
+                        {
+                            Console.WriteLine($"\t{values[i]} - {names[i]}");
+                        }
+                        selectedInputOption = Convert.ToInt32(Console.ReadLine());
+                        successfullySelectedOption = values.Contains(selectedInputOption);
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine("Please input an accepted integer number");
+                        successfullySelectedOption = false;
+                    }
+                } while (!successfullySelectedOption);
+                loadedNetwork = (LoadedNetworkType)selectedInputOption;
             }
 
             Console.WriteLine("Enter learning rate value. The format must be one of these: 0,5 - ,5 - 1");
@@ -132,61 +140,22 @@ namespace NetworkTrainer
                 }
             } while (MessageBox.Show("Do you wish to add one more folder for training", "", MessageBoxButtons.YesNo) == DialogResult.Yes);
 
-            switch ((int)loadedNetwork)
+            switch (loadedNetwork)
             {
-                case 1:
+                case LoadedNetworkType.autoencoder:
                     TrainAutoEncoderOnImages(paths, autoEncoderShape, learningRate);
                     break;
-                case 2:
+
+                case LoadedNetworkType.Gans:
                     TrainGanOnImages(paths, generativeShape, discriminativeShape, learningRate);
                     break;
-                case 3:
+
+                case LoadedNetworkType.ReverseDiffusor:
                     TrainReverseDiffusorOnImages(paths, reverseDiffusorShape, learningRate);
                     break;
             }
 
-            SaveFileDialog saveFileDialog = new SaveFileDialog()
-            {
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                AddExtension = true,
-                Filter = "Text files (*.txt)|*.txt",
-                Title = "Select name and where you wish to save your networks",
-            };
-
-            while (saveFileDialog.ShowDialog() != DialogResult.OK) ;
-
-            string path = saveFileDialog.FileName;
-
-            string fileText = string.Empty;
-
-            List<Task<string>> networkToStringTasks = new List<Task<string>>();
-            switch (inputedOption)
-            {
-                case 1:
-                    fileText += "autoencoder";
-                    networkToStringTasks.Add(Task.Run(() => autoencoder.ToString()));
-                    break;
-                case 2:
-                    fileText += "Gans";
-                    networkToStringTasks.Add(Task.Run(() => discriminative.ToString()));
-                    networkToStringTasks.Add(Task.Run(() => generative.ToString()));
-                    break;
-                case 3:
-                    fileText += "Reverse diffusor";
-                    networkToStringTasks.Add(Task.Run(() => reverseDiffusor.ToString()));
-                    break;
-
-            }
-            fileText += "\nJGG\n";
-
-            foreach (var toStringTask in networkToStringTasks)
-            {
-                toStringTask.Wait();
-                fileText += toStringTask.Result;
-            }
-
-            File.WriteAllText(path, fileText);
-
+            SaveNN();
 
             RunNetworkExecutionUI();
         }
@@ -195,6 +164,7 @@ namespace NetworkTrainer
         {
             Console.WriteLine("How many diffusion per image?");
             int diffusedImagesPerImage = GetInputInt();
+            reverseDiffusorDiffusions = diffusedImagesPerImage;
 
             Console.WriteLine("On how many images does it need to be trained per epoch? (Recommended a low number like 30)");
             int totalImagesPerEpoch = GetInputInt();
@@ -216,7 +186,7 @@ namespace NetworkTrainer
             {
                 watch.Restart();
                 watch.Start();
-                Console.WriteLine("Difussing images.. " + i);
+                Console.WriteLine("Doing diffusion on images.. " + i);
                 // List of images containing diffused images array of arrays
                 List<double[][]> trainingImages = new List<double[][]>();
                 for (int j = 0; j < totalImagesPerEpoch; j++)
@@ -380,7 +350,6 @@ namespace NetworkTrainer
             }
             watch.Stop();
 
-            
             MessageBox.Show($"Training of a new autoencoder with {paths.Count} images and {imagesData.Count} images including modificated images in {watch.Elapsed.TotalMinutes} minutes with a test cost of {testCost} after {epochCounter} iterations",
                 "Traning info", MessageBoxButtons.OK);
         }
@@ -406,6 +375,52 @@ namespace NetworkTrainer
             }
             Console.WriteLine("Finished expanding and parsing image data!");
             return imagesData;
+        }
+
+        private static void SaveNN()
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog()
+            {
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                AddExtension = true,
+                Filter = "Text files (*.txt)|*.txt",
+                Title = "Select name and where you wish to save your networks",
+            };
+
+            while (saveFileDialog.ShowDialog() != DialogResult.OK) ;
+
+            string path = saveFileDialog.FileName;
+
+            string fileText = string.Empty;
+
+            List<Task<string>> networkToStringTasks = new List<Task<string>>();
+            switch (loadedNetwork)
+            {
+                case LoadedNetworkType.autoencoder:
+                    fileText += "autoencoder";
+                    networkToStringTasks.Add(Task.Run(() => autoencoder.ToString()));
+                    break;
+
+                case LoadedNetworkType.Gans:
+                    fileText += "Gans";
+                    networkToStringTasks.Add(Task.Run(() => discriminative.ToString()));
+                    networkToStringTasks.Add(Task.Run(() => generative.ToString()));
+                    break;
+
+                case LoadedNetworkType.ReverseDiffusor:
+                    fileText += $"ReverseDiffusor {reverseDiffusorDiffusions}";
+                    networkToStringTasks.Add(Task.Run(() => reverseDiffusor.ToString()));
+                    break;
+            }
+            fileText += "\nJGG\n";
+
+            foreach (var toStringTask in networkToStringTasks)
+            {
+                toStringTask.Wait();
+                fileText += toStringTask.Result;
+            }
+
+            File.WriteAllText(path, fileText);
         }
 
         private static void LoadNN()
@@ -437,21 +452,28 @@ namespace NetworkTrainer
             string header = headerContent[0];
             string content = headerContent[1];
 
+            string[] headerArgs = header.Split(' ');
+            if (headerArgs[0] == Enum.GetName(typeof(LoadedNetworkType), LoadedNetworkType.ReverseDiffusor))
+            {
+                reverseDiffusorDiffusions = Convert.ToInt32(headerArgs[1]);
+            }
+
             string[] networkStrs = content.Split(new string[] { "\n====\n" }, StringSplitOptions.None);
             List<Task<NN>> NNTasks = new List<Task<NN>>();
 
-            switch (header)
+            loadedNetwork = (LoadedNetworkType)Enum.Parse(typeof(LoadedNetworkType), headerArgs[0]);
+            switch (loadedNetwork)
             {
-                case "autoencoder":
+                case LoadedNetworkType.autoencoder:
                     NNTasks.Add(Task.Run(() => new NN(networkStrs[0])));
                     break;
 
-                case "Gans":
+                case LoadedNetworkType.Gans:
                     NNTasks.Add(Task.Run(() => new NN(networkStrs[0])));
                     NNTasks.Add(Task.Run(() => new NN(networkStrs[1])));
                     break;
 
-                case "reverse diffusor":
+                case LoadedNetworkType.ReverseDiffusor:
                     NNTasks.Add(Task.Run(() => new NN(networkStrs[0])));
                     break;
 
@@ -469,18 +491,28 @@ namespace NetworkTrainer
                 networkTask.Wait();
             }
 
-            if (header == "autoencoder")
+            switch (loadedNetwork)
             {
-                autoencoder = NNTasks[0].Result;
-            }
-            else
-            {
-                discriminative = NNTasks[0].Result;
-                generative = NNTasks[1].Result;
+                case LoadedNetworkType.autoencoder:
+                    autoencoder = NNTasks[0].Result;
+                    break;
+
+                case LoadedNetworkType.Gans:
+                    discriminative = NNTasks[0].Result;
+                    generative = NNTasks[1].Result;
+                    break;
+
+                case LoadedNetworkType.ReverseDiffusor:
+                    reverseDiffusor = NNTasks[0].Result;
+                    break;
+
+                default:
+                    Console.WriteLine("Strange...");
+                    break;
             }
         }
 
-    private static string GetFolderPathFromFilePath(string folderPath)
+        private static string GetFolderPathFromFilePath(string folderPath)
         {
             return Path.GetDirectoryName(folderPath);
         }

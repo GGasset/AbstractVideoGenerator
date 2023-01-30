@@ -26,28 +26,7 @@ namespace AbstractVideoGenerator
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            if (autoencoder != null)
-            {
-                LoadedNetworksLabel.Text += "autoencoder";
-            }
-            if (generative != null)
-            {
-                LoadedNetworksLabel.Text += ", Gans";
-            }
-            if (reverseDiffusor != null)
-            {
-                LoadedNetworksLabel.Text += ", Stable diffusion";
-            }
-
-            string text = LoadedNetworksLabel.Text;
-            string[] introductionBody = text.Split(':');
-            introductionBody[0] += ":";
-
-            string bodyIntroduction = " , ";
-            if (introductionBody[1].StartsWith(bodyIntroduction))
-                introductionBody[1].Remove(0, bodyIntroduction.Length);
-
-            LoadedNetworksLabel.Text = introductionBody[0] + introductionBody[1];
+            LoadedNetworklabel.Text += Enum.GetName(typeof(LoadedNetworkType), LoadedNetworklabel);
         }
 
 
@@ -157,6 +136,15 @@ namespace AbstractVideoGenerator
         }
 
         #endregion Gan execution
+
+        #region Stable diffusion
+
+        private void StableDiffusionImage_Click(object sender, EventArgs e)
+        {
+            
+        }
+
+        #endregion
 
         #endregion Form things
 

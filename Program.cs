@@ -24,7 +24,7 @@ namespace AbstractVideoGenerator
         }
 
         [STAThread]
-        public static void PrepareApp()
+        public static void PrepareUI()
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

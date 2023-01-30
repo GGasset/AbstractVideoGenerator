@@ -20,5 +20,6 @@ namespace Functionality
 
 
         public static NN autoencoder, generative, discriminative, reverseDiffusor;
+        public static int reverseDiffusorDiffusions;
     }
 }

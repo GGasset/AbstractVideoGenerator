@@ -35,11 +35,15 @@
             this.button1 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.LoadedNetworksLabel = new System.Windows.Forms.Label();
+            this.LoadedNetworklabel = new System.Windows.Forms.Label();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.StableDiffusionImage = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.Display)).BeginInit();
             this.flowLayoutPanel1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
             // Display
@@ -71,9 +75,10 @@
             this.flowLayoutPanel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.flowLayoutPanel1.Controls.Add(this.groupBox2);
             this.flowLayoutPanel1.Controls.Add(this.groupBox1);
+            this.flowLayoutPanel1.Controls.Add(this.groupBox4);
             this.flowLayoutPanel1.Location = new System.Drawing.Point(159, 12);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(437, 150);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(437, 196);
             this.flowLayoutPanel1.TabIndex = 6;
             // 
             // groupBox2
@@ -116,6 +121,7 @@
             // 
             this.groupBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.groupBox1.Controls.Add(this.ShowGanImageBttn);
+            this.groupBox1.Controls.Add(this.groupBox3);
             this.groupBox1.Location = new System.Drawing.Point(3, 87);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(427, 48);
@@ -123,23 +129,52 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Gans";
             // 
-            // LoadedNetworksLabel
+            // LoadedNetworklabel
             // 
-            this.LoadedNetworksLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.LoadedNetworksLabel.AutoSize = true;
-            this.LoadedNetworksLabel.Location = new System.Drawing.Point(12, 169);
-            this.LoadedNetworksLabel.Name = "LoadedNetworksLabel";
-            this.LoadedNetworksLabel.Size = new System.Drawing.Size(95, 13);
-            this.LoadedNetworksLabel.TabIndex = 7;
-            this.LoadedNetworksLabel.Text = "Loaded networks: ";
+            this.LoadedNetworklabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.LoadedNetworklabel.AutoSize = true;
+            this.LoadedNetworklabel.Location = new System.Drawing.Point(12, 215);
+            this.LoadedNetworklabel.Name = "LoadedNetworklabel";
+            this.LoadedNetworklabel.Size = new System.Drawing.Size(95, 13);
+            this.LoadedNetworklabel.TabIndex = 7;
+            this.LoadedNetworklabel.Text = "Loaded networks: ";
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Location = new System.Drawing.Point(0, 48);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(427, 47);
+            this.groupBox3.TabIndex = 9;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "groupBox3";
+            // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.StableDiffusionImage);
+            this.groupBox4.Location = new System.Drawing.Point(3, 141);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(427, 47);
+            this.groupBox4.TabIndex = 9;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Stable diffusion (reverse diffusor)";
+            // 
+            // StableDiffusionImage
+            // 
+            this.StableDiffusionImage.Location = new System.Drawing.Point(6, 18);
+            this.StableDiffusionImage.Name = "StableDiffusionImage";
+            this.StableDiffusionImage.Size = new System.Drawing.Size(415, 23);
+            this.StableDiffusionImage.TabIndex = 0;
+            this.StableDiffusionImage.Text = "Show Stable diffusion image";
+            this.StableDiffusionImage.UseVisualStyleBackColor = true;
+            this.StableDiffusionImage.Click += new System.EventHandler(this.StableDiffusionImage_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
-            this.ClientSize = new System.Drawing.Size(598, 191);
-            this.Controls.Add(this.LoadedNetworksLabel);
+            this.ClientSize = new System.Drawing.Size(598, 237);
+            this.Controls.Add(this.LoadedNetworklabel);
             this.Controls.Add(this.flowLayoutPanel1);
             this.Controls.Add(this.Display);
             this.Name = "MainForm";
@@ -150,6 +185,7 @@
             this.flowLayoutPanel1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
+            this.groupBox4.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -164,10 +200,13 @@
         private System.Windows.Forms.Button ShowGanImageBttn;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Label LoadedNetworksLabel;
+        private System.Windows.Forms.Label LoadedNetworklabel;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.Button StableDiffusionImage;
     }
 }
 
