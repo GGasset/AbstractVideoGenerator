@@ -35,10 +35,10 @@
             this.button1 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.LoadedNetworklabel = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.StableDiffusionImage = new System.Windows.Forms.Button();
+            this.LoadedNetworklabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.Display)).BeginInit();
             this.flowLayoutPanel1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -129,16 +129,6 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Gans";
             // 
-            // LoadedNetworklabel
-            // 
-            this.LoadedNetworklabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.LoadedNetworklabel.AutoSize = true;
-            this.LoadedNetworklabel.Location = new System.Drawing.Point(12, 215);
-            this.LoadedNetworklabel.Name = "LoadedNetworklabel";
-            this.LoadedNetworklabel.Size = new System.Drawing.Size(95, 13);
-            this.LoadedNetworklabel.TabIndex = 7;
-            this.LoadedNetworklabel.Text = "Loaded networks: ";
-            // 
             // groupBox3
             // 
             this.groupBox3.Location = new System.Drawing.Point(0, 48);
@@ -168,6 +158,16 @@
             this.StableDiffusionImage.UseVisualStyleBackColor = true;
             this.StableDiffusionImage.Click += new System.EventHandler(this.StableDiffusionImage_Click);
             // 
+            // LoadedNetworklabel
+            // 
+            this.LoadedNetworklabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.LoadedNetworklabel.AutoSize = true;
+            this.LoadedNetworklabel.Location = new System.Drawing.Point(12, 215);
+            this.LoadedNetworklabel.Name = "LoadedNetworklabel";
+            this.LoadedNetworklabel.Size = new System.Drawing.Size(95, 13);
+            this.LoadedNetworklabel.TabIndex = 7;
+            this.LoadedNetworklabel.Text = "Loaded networks: ";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -180,6 +180,7 @@
             this.Name = "MainForm";
             this.ShowIcon = false;
             this.Text = "Video Generator";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.Display)).EndInit();
             this.flowLayoutPanel1.ResumeLayout(false);

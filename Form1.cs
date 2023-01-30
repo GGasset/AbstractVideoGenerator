@@ -29,6 +29,10 @@ namespace AbstractVideoGenerator
             LoadedNetworklabel.Text += Enum.GetName(typeof(LoadedNetworkType), LoadedNetworklabel);
         }
 
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Display.Image.Dispose();
+        }
 
         #region Auto encoder execution
 
@@ -36,11 +40,7 @@ namespace AbstractVideoGenerator
         {
             autoencoderVideoTimer?.Stop();
 
-            if (autoencoder == null)
-            {
-                MessageBox.Show("First initialize autoencoder network");
-                return;
-            }
+            CheckIfNNIsReady(autoencoder);
 
             Bitmap originalImage;
             string imagePath = GetImagePath();
@@ -66,11 +66,7 @@ namespace AbstractVideoGenerator
 
         private void AutoencoderVideoSelectedImageBttn_Click(object sender, EventArgs e)
         {
-            if (autoencoder == null)
-            {
-                MessageBox.Show("First you need to train or load an autoencoder network", "ERROR");
-                return;
-            }
+            CheckIfNNIsReady(autoencoder);
 
             autoencoderVideoTimer = new Timer()
             {
@@ -122,6 +118,8 @@ namespace AbstractVideoGenerator
 
         private void ShowGanImageBttn_Click(object sender, EventArgs e)
         {
+            CheckIfNNIsReady(generative);
+
             Display.Image.Dispose();
 
             string imagePath = GetImagePath();
@@ -141,14 +139,36 @@ namespace AbstractVideoGenerator
 
         private void StableDiffusionImage_Click(object sender, EventArgs e)
         {
-            
+            CheckIfNNIsReady(reverseDiffusor);
+
+            double[] output = GetGaussianNoise(.5, .15, discriminative.Shape[0]);
+            for (int i = 1; i < reverseDiffusorDiffusions; i++)
+            {
+                output = reverseDiffusor.Execute(output);
+            }
+
+            Display.Image.Dispose();
+            var squareSideSize = GetOutputSquareSideSize();
+            var outputBmp = DoubleArrayToBitmap(output, squareSideSize, squareSideSize);
+            var resized = new Bitmap(outputBmp, Display.Size);
+            outputBmp.Dispose();
+            Display.Image = resized;
         }
 
-        #endregion
+        #endregion Stable diffusion
 
         #endregion Form things
 
         #region functionality
+
+        private void CheckIfNNIsReady(NN n)
+        {
+            if (n == null)
+            {
+                var dialogResult = MessageBox.Show("Please, first load or train the network you are trying to use.\nDo you wish to do it now?", "", MessageBoxButtons.YesNo);
+                if (dialogResult == DialogResult.Yes) Close();
+            }
+        }
 
         public static string FolderToName(string folderPath)
         {
