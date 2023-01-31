@@ -26,7 +26,7 @@ namespace AbstractVideoGenerator
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            LoadedNetworklabel.Text += Enum.GetName(typeof(LoadedNetworkType), LoadedNetworklabel);
+            LoadedNetworklabel.Text += Enum.GetName(typeof(LoadedNetworkType), loadedNetwork);
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)

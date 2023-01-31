@@ -414,11 +414,14 @@ namespace NetworkTrainer
             }
             fileText += "\nJGG\n";
 
+            string networkSeparation = "\n====\n";
             foreach (var toStringTask in networkToStringTasks)
             {
                 toStringTask.Wait();
                 fileText += toStringTask.Result;
+                fileText += networkSeparation;
             }
+            fileText = fileText.Remove(fileText.LastIndexOf(networkSeparation));
 
             File.WriteAllText(path, fileText);
         }
