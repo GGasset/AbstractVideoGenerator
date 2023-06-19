@@ -103,8 +103,8 @@ namespace NetworkTrainer
             bool successfullySelectedOption;
             if (args?[0] != "Train existing")
             {
-                string[] names = Enum.GetNames(typeof(LoadedNetworkType));
-                int[] values = (int[])Enum.GetValues(typeof(LoadedNetworkType));
+                string[] names = Enum.GetNames(typeof(NetworkType));
+                int[] values = (int[])Enum.GetValues(typeof(NetworkType));
                 do
                 {
                     try
@@ -123,7 +123,7 @@ namespace NetworkTrainer
                         successfullySelectedOption = false;
                     }
                 } while (!successfullySelectedOption);
-                loadedNetwork = (LoadedNetworkType)selectedInputOption;
+                loadedNetwork = (NetworkType)selectedInputOption;
             }
 
             Console.WriteLine("Enter learning rate value. The format must be one of these: 0,5 - ,5 - 1");
@@ -142,17 +142,20 @@ namespace NetworkTrainer
 
             switch (loadedNetwork)
             {
-                case LoadedNetworkType.autoencoder:
+                case NetworkType.autoencoder:
                     TrainAutoEncoderOnImages(paths, autoEncoderShape, learningRate);
                     break;
 
-                case LoadedNetworkType.Gans:
+                case NetworkType.Gans:
                     TrainGanOnImages(paths, generativeShape, discriminativeShape, learningRate);
                     break;
 
-                case LoadedNetworkType.ReverseDiffusor:
+                case NetworkType.ReverseDiffusor:
                     TrainReverseDiffusorOnImages(paths, reverseDiffusorShape, learningRate);
                     break;
+
+                default:
+                    throw new NotImplementedException();
             }
 
             SaveNN();
@@ -379,140 +382,119 @@ namespace NetworkTrainer
 
         private static void SaveNN()
         {
+            List<Task<string>> networkToStringTasks = new List<Task<string>>();
+            switch (loadedNetwork)
+            {
+                case NetworkType.autoencoder:
+                    Task<string> autoencoderTask = Task.Run(() => autoencoder.ToString());
+
+                    string autoencoderPath = GetSavePath("Autoencoder");
+
+                    autoencoderTask.Wait();
+
+                    File.WriteAllText(autoencoderPath, autoencoderTask.Result);
+                    break;
+
+                case NetworkType.Gans:
+                    Task<string> discriminativeTask = Task.Run(() => discriminative.ToString());
+                    Task<string> generativeTask = Task.Run(() => generative.ToString());
+
+                    string generativePath = GetSavePath("Generative");
+                    string discriminativePath = GetSavePath("Discriminative");
+
+                    discriminativeTask.Wait();
+                    generativeTask.Wait();
+
+                    File.WriteAllText(generativePath, discriminativeTask.Result);
+                    File.WriteAllText(discriminativePath, discriminativeTask.Result);
+                    break;
+
+                case NetworkType.ReverseDiffusor:
+                    Task<string> reverseDiffusorTask = Task.Run(() => reverseDiffusor.ToString());
+
+                    string reverseDiffusorPath = GetSavePath("Stable diffusion");
+
+                    reverseDiffusorTask.Wait();
+
+                    File.WriteAllText(reverseDiffusorPath, reverseDiffusorTask.Result);
+                    break;
+
+                default:
+                    throw new NotImplementedException();
+            }
+
+        }
+
+        private static void LoadNN()
+        {
+            autoencoder = null;
+            generative = null;
+            discriminative = null;
+            reverseDiffusor = null;
+            loadedNetwork = AskForNetworkType();
+
+            string[] networksNames;
+            switch (loadedNetwork)
+            {
+                case NetworkType.autoencoder:
+                    networksNames = new string[] { "Autoencoder" };
+                    break;
+                case NetworkType.Gans:
+                    networksNames = new string[] {"Generative", "Discriminative"};
+                    break;
+                case NetworkType.ReverseDiffusor:
+                    networksNames = new string[] {"Stable diffusion"};
+                    break;
+                case NetworkType.DiffusionSubtractor:
+                    networksNames = new string[] {"Stable diffusion noise prediction"};
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+
+            string[] networksPaths = new string[networksNames.Length];
+            StreamReader[] readers = new StreamReader[networksNames.Length];
+            for (int i = 0; i < networksNames.Length; i++)
+            {
+                networksPaths[i] = GetSavePath(networksNames[i], action: "load");
+                readers[i] = new StreamReader(networksPaths[i]);
+            }
+
+            switch (loadedNetwork)
+            {
+                case NetworkType.autoencoder:
+                    autoencoder = new NN(readers[0]);
+                    break;
+                case NetworkType.Gans:
+                    generative = new NN(readers[0]);
+                    discriminative = new NN(readers[1]);
+                    break;
+                case NetworkType.ReverseDiffusor:
+                    reverseDiffusor = new NN(readers[0]);
+                    break;
+                case NetworkType.DiffusionSubtractor:
+                    diffusionSubtractor = new NN(readers[0]);
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        private static string GetSavePath(string networkName, string action = "save")
+        {
             SaveFileDialog saveFileDialog = new SaveFileDialog()
             {
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 AddExtension = true,
                 Filter = "Text files (*.txt)|*.txt",
-                Title = "Select name and where you wish to save your networks",
+                Title = $"Select name and where you wish to {action} the {networkName} network",
             };
 
             while (saveFileDialog.ShowDialog() != DialogResult.OK) ;
 
             string path = saveFileDialog.FileName;
 
-            string fileText = string.Empty;
-
-            List<Task<string>> networkToStringTasks = new List<Task<string>>();
-            switch (loadedNetwork)
-            {
-                case LoadedNetworkType.autoencoder:
-                    fileText += "autoencoder";
-                    networkToStringTasks.Add(Task.Run(() => autoencoder.ToString()));
-                    break;
-
-                case LoadedNetworkType.Gans:
-                    fileText += "Gans";
-                    networkToStringTasks.Add(Task.Run(() => discriminative.ToString()));
-                    networkToStringTasks.Add(Task.Run(() => generative.ToString()));
-                    break;
-
-                case LoadedNetworkType.ReverseDiffusor:
-                    fileText += $"ReverseDiffusor {reverseDiffusorDiffusions}";
-                    networkToStringTasks.Add(Task.Run(() => reverseDiffusor.ToString()));
-                    break;
-            }
-            fileText += "\nJGG\n";
-
-            string networkSeparation = "\n====\n";
-            foreach (var toStringTask in networkToStringTasks)
-            {
-                toStringTask.Wait();
-                fileText += toStringTask.Result;
-                fileText += networkSeparation;
-            }
-            fileText = fileText.Remove(fileText.LastIndexOf(networkSeparation));
-
-            File.WriteAllText(path, fileText);
-        }
-
-        private static void LoadNN()
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog()
-            {
-                Title = "Select a .txt file generated by this app to load your NNs",
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                Filter = "Text files (*.txt)|*.txt",
-                Multiselect = false,
-            };
-
-            while (openFileDialog.ShowDialog() != DialogResult.OK) ;
-
-            var filePath = openFileDialog.FileName;
-
-            autoencoder = null;
-            generative = null;
-            discriminative = null;
-            reverseDiffusor = null;
-
-            string text = string.Empty;
-            using (StreamReader reader = new StreamReader(filePath))
-            {
-                text = reader.ReadToEnd();
-            }
-
-            string[] headerContent = text.Split(new string[] { "\nJGG\n" }, StringSplitOptions.None);
-            string header = headerContent[0];
-            string content = headerContent[1];
-
-            string[] headerArgs = header.Split(' ');
-            if (headerArgs[0] == Enum.GetName(typeof(LoadedNetworkType), LoadedNetworkType.ReverseDiffusor))
-            {
-                reverseDiffusorDiffusions = Convert.ToInt32(headerArgs[1]);
-            }
-
-            string[] networkStrs = content.Split(new string[] { "\n====\n" }, StringSplitOptions.None);
-            List<Task<NN>> NNTasks = new List<Task<NN>>();
-
-            loadedNetwork = (LoadedNetworkType)Enum.Parse(typeof(LoadedNetworkType), headerArgs[0]);
-            switch (loadedNetwork)
-            {
-                case LoadedNetworkType.autoencoder:
-                    NNTasks.Add(Task.Run(() => new NN(networkStrs[0])));
-                    break;
-
-                case LoadedNetworkType.Gans:
-                    NNTasks.Add(Task.Run(() => new NN(networkStrs[0])));
-                    NNTasks.Add(Task.Run(() => new NN(networkStrs[1])));
-                    break;
-
-                case LoadedNetworkType.ReverseDiffusor:
-                    NNTasks.Add(Task.Run(() => new NN(networkStrs[0])));
-                    break;
-
-                default:
-                    var dialogResult = MessageBox.Show("This file wasn't generated by this app and thus is incompatible. Consider restarting the app and selecting a valid Neural Network or training one.", "Error", MessageBoxButtons.YesNo);
-                    if (dialogResult == DialogResult.No)
-                    {
-                        Console.WriteLine("Sorry, it is the way it is.");
-                    }
-                    return;
-            }
-
-            foreach (var networkTask in NNTasks)
-            {
-                networkTask.Wait();
-            }
-
-            switch (loadedNetwork)
-            {
-                case LoadedNetworkType.autoencoder:
-                    autoencoder = NNTasks[0].Result;
-                    break;
-
-                case LoadedNetworkType.Gans:
-                    discriminative = NNTasks[0].Result;
-                    generative = NNTasks[1].Result;
-                    break;
-
-                case LoadedNetworkType.ReverseDiffusor:
-                    reverseDiffusor = NNTasks[0].Result;
-                    break;
-
-                default:
-                    Console.WriteLine("Strange...");
-                    break;
-            }
+            return path;
         }
 
         private static string GetFolderPathFromFilePath(string folderPath)

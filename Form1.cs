@@ -26,7 +26,7 @@ namespace AbstractVideoGenerator
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            LoadedNetworklabel.Text += Enum.GetName(typeof(LoadedNetworkType), loadedNetwork);
+            LoadedNetworklabel.Text += Enum.GetName(typeof(NetworkType), loadedNetwork);
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -184,13 +184,13 @@ namespace AbstractVideoGenerator
             int output;
             switch (loadedNetwork)
             {
-                case LoadedNetworkType.autoencoder:
+                case NetworkType.autoencoder:
                     output = autoencoder.Shape[0];
                     break;
-                case LoadedNetworkType.Gans:
+                case NetworkType.Gans:
                     output = discriminative.Shape[0];
                     break;
-                case LoadedNetworkType.ReverseDiffusor:
+                case NetworkType.ReverseDiffusor:
                     output = reverseDiffusor.Shape[0];
                     break;
                 default:
